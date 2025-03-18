@@ -61,8 +61,14 @@ class Vehicle(pygame.sprite.Sprite):
         self.crossed = 0
         vehicles[direction][lane].append(self)
         self.index = len(vehicles[direction][lane]) - 1
-        path = "images/" + direction + "/" + vehicleClass + ".png"
+        path = "images/" + vehicleClass + ".png"
         self.image = pygame.image.load(path)
+        if (direction == 'down'):
+            self.image = pygame.transform.flip(self.image , False, True)
+        elif (direction == 'left'):
+            self.image = pygame.transform.rotate(self.image, 90)
+        elif (direction == 'right'):
+            self.image = pygame.transform.rotate(self.image, 270)
 
         if(len(vehicles[direction][lane])>1 and vehicles[direction][lane][self.index-1].crossed==0):    # if more than 1 vehicle in the lane of vehicle before it has crossed stop line
             if(direction=='right'):
