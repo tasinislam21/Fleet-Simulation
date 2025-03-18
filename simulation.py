@@ -3,6 +3,7 @@ import time
 import threading
 import pygame
 import sys
+from animation import AnimatedResponsePolice
 
 # Default values of signal timers
 defaultGreen = {0:10, 1:10, 2:10, 3:10}
@@ -15,14 +16,15 @@ currentGreen = 0   # Indicates which signal is green currently
 nextGreen = (currentGreen+1)%noOfSignals    # Indicates which signal will turn green next
 currentYellow = 0   # Indicates whether yellow signal is on or off 
 
-speeds = {'car':2.25, 'bus':1.8, 'truck':1.8, 'bike':2.5}  # average speeds of vehicles
+speeds = {'police_response':2.8, 'police_patrol':1.8, 'civilian':1.8, 'bike':2.5}  # average speeds of vehicles
 
 # Coordinates of vehicles' start
 x = {'right':[0,0,0], 'down':[755,727,697], 'left':[1400,1400,1400], 'up':[602,627,657]}    
 y = {'right':[348,370,398], 'down':[0,0,0], 'left':[498,466,436], 'up':[800,800,800]}
 
 vehicles = {'right': {0:[], 1:[], 2:[], 'crossed':0}, 'down': {0:[], 1:[], 2:[], 'crossed':0}, 'left': {0:[], 1:[], 2:[], 'crossed':0}, 'up': {0:[], 1:[], 2:[], 'crossed':0}}
-vehicleTypes = {0:'car', 1:'bus', 2:'truck', 3:'bike'}
+vehicleTypes = {'police_response':0, 'police_patrol':1, 'civilian':2, 'bike':3}  # average speeds of vehicles
+
 directionNumbers = {0:'right', 1:'down', 2:'left', 3:'up'}
 
 # Coordinates of signal image, timer, and vehicle count
@@ -47,7 +49,7 @@ class TrafficSignal:
         self.yellow = yellow
         self.green = green
         self.signalText = ""
-        
+
 class Vehicle(pygame.sprite.Sprite):
     def __init__(self, lane, vehicleClass, direction_number, direction):
         pygame.sprite.Sprite.__init__(self)
@@ -61,8 +63,14 @@ class Vehicle(pygame.sprite.Sprite):
         self.crossed = 0
         vehicles[direction][lane].append(self)
         self.index = len(vehicles[direction][lane]) - 1
-        path = "images/" + vehicleClass + ".png"
-        self.image = pygame.image.load(path)
+
+        if (vehicleClass == 'police_response'):
+            player = AnimatedResponsePolice(position=(100, 100))
+            self.image = pygame.sprite.Group(player)
+        else:
+            path = "images/" + vehicleClass + ".png"
+            self.image = pygame.image.load(path)
+
         if (direction == 'down'):
             self.image = pygame.transform.flip(self.image , False, True)
         elif (direction == 'left'):
