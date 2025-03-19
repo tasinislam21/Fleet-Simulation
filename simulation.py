@@ -49,11 +49,10 @@ class TrafficSignal:
         self.signalText = ""
         
 class Vehicle(pygame.sprite.Sprite):
-    def __init__(self, lane, vehicleClass, direction_number, direction):
+    def __init__(self, lane, car_image, speed, direction_number, direction):
         pygame.sprite.Sprite.__init__(self)
         self.lane = lane
-        self.vehicleClass = vehicleClass
-        self.speed = speeds[vehicleClass]
+        self.speed = speed
         self.direction_number = direction_number
         self.direction = direction
         self.x = x[direction][lane]
@@ -61,8 +60,7 @@ class Vehicle(pygame.sprite.Sprite):
         self.crossed = 0
         vehicles[direction][lane].append(self)
         self.index = len(vehicles[direction][lane]) - 1
-        path = "images/" + vehicleClass + ".png"
-        self.image = pygame.image.load(path)
+        self.image = car_image
         if (direction == 'down'):
             self.image = pygame.transform.flip(self.image , False, True)
         elif (direction == 'left'):
@@ -187,7 +185,11 @@ def generateVehicles():
             direction_number = 2
         elif(temp<dist[3]):
             direction_number = 3
-        Vehicle(lane_number, vehicleTypes[vehicle_type], direction_number, directionNumbers[direction_number])
+
+        path = "images/" + vehicleTypes[vehicle_type] + ".png"
+        car_image = pygame.image.load(path)
+        speed = speeds[vehicleTypes[vehicle_type]]
+        Vehicle(lane_number, car_image, speed, direction_number, directionNumbers[direction_number])
         time.sleep(1)
 
 class Main:
