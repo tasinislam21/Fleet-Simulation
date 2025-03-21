@@ -12,6 +12,7 @@ speeds = {'car':2.25, 'police':2.0, 'police_response':2.9, 'bike':2.5}  # averag
 x = {'right':[0,0,0], 'down':[755,727,697], 'left':[1400,1400,1400], 'up':[602,627,657]}
 y = {'right':[348,370,398], 'down':[0,0,0], 'left':[498,466,436], 'up':[800,800,800]}
 
+
 vehicleTypes = {0:'car', 1:'police', 2:'police_response', 3:'bike'}
 directionNumbers = {0:'right', 1:'down', 2:'left', 3:'up'}
 

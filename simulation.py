@@ -7,7 +7,6 @@ import config as c
 from Vehicle import Vehicle
 # Default values of signal timers
 
-
 signals = []
 noOfSignals = 4
 currentGreen = 0   # Indicates which signal is green currently
@@ -86,11 +85,12 @@ def get_direction():
     elif (temp < dist[3]):
         direction_number = 3
     return direction_number
+    #return 0
 
 def generateVehicles():
     while(True):
         vehicle_id = random.randint(0,3)
-        lane_number = random.randint(1,2)
+        lane_number = 0 if vehicle_id == 2 else random.randint(1,2)
         direction_number = get_direction()
         vehicle = Vehicle(lane_number, vehicle_id, direction_number)
         simulation.add(vehicle.get_object())
