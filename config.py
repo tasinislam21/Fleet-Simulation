@@ -1,9 +1,12 @@
-import pygame
+defaultGreen = {0:10, 1:10, 2:10, 3:10}
+defaultRed = 150
+defaultYellow = 5
+
 # Gap between vehicles
 stoppingGap = 15    # stopping gap
 movingGap = 15   # moving gap
 vehicles = {'right': {0:[], 1:[], 2:[], 'crossed':0}, 'down': {0:[], 1:[], 2:[], 'crossed':0}, 'left': {0:[], 1:[], 2:[], 'crossed':0}, 'up': {0:[], 1:[], 2:[], 'crossed':0}}
-speeds = {'car':2.25, 'police':2.0, 'police_response':1.8, 'bike':2.5}  # average speeds of vehicles
+speeds = {'car':2.25, 'police':2.0, 'police_response':2.9, 'bike':2.5}  # average speeds of vehicles
 
 # Coordinates of vehicles' start
 x = {'right':[0,0,0], 'down':[755,727,697], 'left':[1400,1400,1400], 'up':[602,627,657]}
@@ -20,25 +23,3 @@ signalTimerCoods = [(530,210),(810,210),(810,550),(530,550)]
 stopLines = {'right': 590, 'down': 330, 'left': 800, 'up': 535}
 defaultStop = {'right': 580, 'down': 320, 'left': 810, 'up': 545}
 # stops = {'right': [580,580,580], 'down': [320,320,320], 'left': [810,810,810], 'up': [545,545,545]}
-
-class SingletonClass(object):
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(SingletonClass, cls).__new__(cls)
-        return cls.instance
-
-
-singleton = SingletonClass()
-new_singleton = SingletonClass()
-
-print(singleton is new_singleton)
-
-
-if __name__ == "__main__":
-    # The client code.
-
-    s1 = Singleton()
-    s2 = Singleton()
-
-
-simulation = pygame.sprite.Group()
