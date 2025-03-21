@@ -18,7 +18,7 @@ currentYellow = 0   # Indicates whether yellow signal is on or off
 stoppingGap = 15    # stopping gap
 movingGap = 15   # moving gap
 vehicles = {'right': {0:[], 1:[], 2:[], 'crossed':0}, 'down': {0:[], 1:[], 2:[], 'crossed':0}, 'left': {0:[], 1:[], 2:[], 'crossed':0}, 'up': {0:[], 1:[], 2:[], 'crossed':0}}
-speeds = {'car':2.25, 'police':2.0, 'police_response':1.8, 'bike':2.5}  # average speeds of vehicles
+speeds = {'car':2.25, 'police':2.0, 'police_response':3, 'bike':2.5}  # average speeds of vehicles
 
 # Coordinates of vehicles' start
 x = {'right':[0,0,0], 'down':[755,727,697], 'left':[1400,1400,1400], 'up':[602,627,657]}
@@ -72,6 +72,14 @@ class ResponseVehicle(pygame.sprite.Sprite):
         self.sprites = []
         self.sprites.append(pygame.image.load('images/response_police/police_red.png'))
         self.sprites.append(pygame.image.load('images/response_police/police_blue.png'))
+        for car_index in range(len(self.sprites)):
+            if (direction == 'down'):
+                self.sprites[car_index] = pygame.transform.flip(self.sprites[car_index], True, False)
+            elif (direction == 'left'):
+                self.sprites[car_index] = pygame.transform.rotate(self.sprites[car_index], 90)
+            elif (direction == 'right'):
+                self.sprites[car_index] = pygame.transform.rotate(self.sprites[car_index], 270)
+
         self.current_sprite = 0
         self.image = self.sprites[self.current_sprite]
 
