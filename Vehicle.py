@@ -74,39 +74,52 @@ class Vehicle(pygame.sprite.Sprite):
 
     def move(self, currentGreen, currentYellow):
         if (self.direction == 'right'):
-            if (self.crossed == 0 and self.x + self.image.get_rect().width > c.stopLines[
-                self.direction]):  # if the image has crossed stop line now
-                self.crossed = 1
-            if ((self.x + self.image.get_rect().width <= self.stop or self.crossed == 1 or (
-                    currentGreen == 0 and currentYellow == 0)) and (
-                    self.index == 0 or self.x + self.image.get_rect().width < (
-                    c.vehicles[self.direction][self.lane][self.index - 1].x - c.movingGap))):
-                # (if the image has not reached its stop coordinate or has crossed stop line or has green signal) and (it is either the first vehicle in that lane or it is has enough gap to the next vehicle in that lane)
-                self.x += self.speed  # move the vehicle
+            if self.emergency:
+                self.x += self.speed
+            else:
+                if (self.crossed == 0 and self.x + self.image.get_rect().width > c.stopLines[
+                    self.direction]):  # if the image has crossed stop line now
+                    self.crossed = 1
+                if ((self.x + self.image.get_rect().width <= self.stop or self.crossed == 1 or (
+                        currentGreen == 0 and currentYellow == 0)) and (
+                        self.index == 0 or self.x + self.image.get_rect().width < (
+                        c.vehicles[self.direction][self.lane][self.index - 1].x - c.movingGap))):
+                    # (if the image has not reached its stop coordinate or has crossed stop line or has green signal) and (it is either the first vehicle in that lane or it is has enough gap to the next vehicle in that lane)
+                    self.x += self.speed  # move the vehicle
         elif (self.direction == 'down'):
-            if (self.crossed == 0 and self.y + self.image.get_rect().height > c.stopLines[self.direction]):
-                self.crossed = 1
-            if ((self.y + self.image.get_rect().height <= self.stop or self.crossed == 1 or (
-                    currentGreen == 1 and currentYellow == 0)) and (
-                    self.index == 0 or self.y + self.image.get_rect().height < (
-                    c.vehicles[self.direction][self.lane][self.index - 1].y - c.movingGap))):
+            if self.emergency:
                 self.y += self.speed
+            else:
+                if (self.crossed == 0 and self.y + self.image.get_rect().height > c.stopLines[self.direction]):
+                    self.crossed = 1
+                if ((self.y + self.image.get_rect().height <= self.stop or self.crossed == 1 or (
+                        currentGreen == 1 and currentYellow == 0)) and (
+                        self.index == 0 or self.y + self.image.get_rect().height < (
+                        c.vehicles[self.direction][self.lane][self.index - 1].y - c.movingGap))):
+                    self.y += self.speed
         elif (self.direction == 'left'):
-            if (self.crossed == 0 and self.x < c.stopLines[self.direction]):
-                self.crossed = 1
-            if ((self.x >= self.stop or self.crossed == 1 or (currentGreen == 2 and currentYellow == 0)) and (
-                    self.index == 0 or self.x > (
-                    c.vehicles[self.direction][self.lane][self.index - 1].x + c.vehicles[self.direction][self.lane][
-                self.index - 1].image.get_rect().width + c.movingGap))):
+            if self.emergency:
                 self.x -= self.speed
+            else:
+                if (self.crossed == 0 and self.x < c.stopLines[self.direction]):
+                    self.crossed = 1
+                if ((self.x >= self.stop or self.crossed == 1 or (currentGreen == 2 and currentYellow == 0)) and (
+                        self.index == 0 or self.x > (
+                        c.vehicles[self.direction][self.lane][self.index - 1].x + c.vehicles[self.direction][self.lane][
+                    self.index - 1].image.get_rect().width + c.movingGap))):
+                    self.x -= self.speed
         elif (self.direction == 'up'):
-            if (self.crossed == 0 and self.y < c.stopLines[self.direction]):
-                self.crossed = 1
-            if ((self.y >= self.stop or self.crossed == 1 or (currentGreen == 3 and currentYellow == 0)) and (
-                    self.index == 0 or self.y > (
-                    c.vehicles[self.direction][self.lane][self.index - 1].y + c.vehicles[self.direction][self.lane][
-                self.index - 1].image.get_rect().height + c.movingGap))):
+            if self.emergency:
                 self.y -= self.speed
+            else:
+                if (self.crossed == 0 and self.y < c.stopLines[self.direction]):
+                    self.crossed = 1
+                if ((self.y >= self.stop or self.crossed == 1 or (currentGreen == 3 and currentYellow == 0)) and (
+                        self.index == 0 or self.y > (
+                        c.vehicles[self.direction][self.lane][self.index - 1].y + c.vehicles[self.direction][self.lane][
+                    self.index - 1].image.get_rect().height + c.movingGap))):
+                    self.y -= self.speed
+
     def isEmergency(self):
         return self.emergency
 
