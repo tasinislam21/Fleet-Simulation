@@ -63,7 +63,7 @@ class Vehicle(pygame.sprite.Sprite):
             temp = self.image.get_rect().height + c.stoppingGap
             c.y[self.direction][lane] += temp
 
-    def update(self):
+    def flash_light(self):
         self.current_sprite += 0.15
         if int(self.current_sprite) >= len(self.sprites):
             self.current_sprite = 0

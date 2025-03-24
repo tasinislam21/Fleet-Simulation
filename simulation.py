@@ -15,6 +15,7 @@ currentYellow = 0   # Indicates whether yellow signal is on or off
 
 pygame.init()
 simulation = pygame.sprite.Group()
+clock = pygame.time.Clock()
 
 class TrafficSignal:
     def __init__(self, red, yellow, green):
@@ -127,6 +128,7 @@ class Main:
     thread2.start()
 
     while True:
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -158,6 +160,6 @@ class Main:
             screen.blit(vehicle.image, [vehicle.x, vehicle.y])
             vehicle.move(currentGreen, currentYellow)
             if vehicle.isEmergency():
-                vehicle.update()
+                vehicle.flash_light()
         pygame.display.update()
 Main()
