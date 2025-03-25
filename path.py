@@ -2,8 +2,8 @@ import pygame
 
 pygame.init()
 
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 400
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 600
 
 going_up = False
 going_left = False
@@ -21,6 +21,7 @@ rect_1 = pygame.Rect(10, 10, 50, 320)
 rect_2 = pygame.Rect(10, 300, 320, 50)
 rect_3 = pygame.Rect(150, 180, 50, 120)
 rect_4 = pygame.Rect(150, 180, 150, 50)
+map_pos = [rect_1, rect_2, rect_3, rect_4]
 car_rect = car.get_rect()
 
 
@@ -31,30 +32,39 @@ def reset_direction():
     going_right = False
     going_down = False
 
-def car_direction(current_position):
+def move_car(current_position):
     global going_up, going_left, going_right, going_down
     global car
+
     key = pygame.key.get_pressed()
     if key[pygame.K_LEFT] == True:
         car_rect.x -= 5
+        if car_rect.collidelist(map_pos) == -1:
+            car_rect.x += 5
         if not going_left:
             car = pygame.transform.rotate(default_car, 90)
             reset_direction()
             going_left = True
     if key[pygame.K_RIGHT] == True:
         car_rect.x += 5
+        if car_rect.collidelist(map_pos) == -1:
+            car_rect.x -= 5
         if not going_right:
             car = pygame.transform.rotate(default_car, 270)
             reset_direction()
             going_right = True
     if key[pygame.K_UP] == True:
         car_rect.y -= 5
+        if car_rect.collidelist(map_pos) == -1:
+            car_rect.y += 5
         if not going_up:
             car = default_car
             reset_direction()
             going_up = True
     if key[pygame.K_DOWN] == True:
         car_rect.y += 5
+        if car_rect.collidelist(map_pos) == -1:
+            car_rect.y -= 5
         if not going_down:
             car = pygame.transform.rotate(default_car, 180)
             reset_direction()
@@ -73,9 +83,12 @@ while run:
     pygame.draw.rect(screen, (255, 0, 255), rect_2)
     pygame.draw.rect(screen, (255, 0, 255), rect_3)
     pygame.draw.rect(screen, (255, 0, 255), rect_4)
-    car_direction(car_rect)
-    screen.blit(car, car_rect)
+    move_car(car_rect)
 
+    if car_rect.collidelist(map_pos) == -1:
+        print("car hit")
+
+    screen.blit(car, car_rect)
     pygame.display.flip()
     screen.fill((0, 0, 0))
 
