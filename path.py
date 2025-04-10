@@ -11,6 +11,8 @@ going_down = False
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+map_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+map_surface.fill((0, 0, 0))
 pygame.display.set_caption("Buildings")
 default_car = pygame.image.load("images/car.png").convert_alpha()
 car = pygame.image.load("images/car.png").convert_alpha()
@@ -25,6 +27,8 @@ buildings = [
     pygame.Rect(850, 260, 300, 150),
     pygame.Rect(0, 450, 300, 150),
 ]
+for wall in buildings:
+    pygame.draw.rect(map_surface, (255, 255, 255), wall)
 
 car_rect = car.get_rect()
 car_rect.center = (454, 203)
@@ -74,6 +78,8 @@ def move_car():
             reset_direction()
             going_down = True
 
+
+
 run = True
 while run:
     clock.tick(60)
@@ -83,15 +89,12 @@ while run:
         if event.type == pygame.MOUSEMOTION:
             print(f'Mouse position {event.pos}')
 
-    for wall in buildings:
-        pygame.draw.rect(screen, (255, 255, 255), wall)
-    move_car()
 
+    move_car()
     if car_rect.collidelist(buildings) >= 0:
         print("car hit")
-
+    screen.blit(map_surface, (0, 0))
     screen.blit(car, car_rect)
     pygame.display.flip()
-    screen.fill((0, 0, 0))
 
 pygame.quit()
