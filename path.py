@@ -17,13 +17,20 @@ pygame.display.set_caption("Working With Rectangles")
 default_car = pygame.image.load("images/car.png").convert_alpha()
 car = pygame.image.load("images/car.png").convert_alpha()
 
-rect_1 = pygame.Rect(10, 10, 50, 320)
-rect_2 = pygame.Rect(10, 300, 320, 50)
-rect_3 = pygame.Rect(150, 180, 50, 120)
-rect_4 = pygame.Rect(150, 180, 150, 50)
-map_pos = [rect_1, rect_2, rect_3, rect_4]
-car_rect = car.get_rect()
+walls = [
+    #           x  y   w    h
+    pygame.Rect(0, 0, 300, 200),
+    pygame.Rect(360, 0, 200, 150),
+    pygame.Rect(620, 0, 880, 200),
+    pygame.Rect(0, 260, 420, 100),
+    pygame.Rect(490, 285, 300, 150),
+    pygame.Rect(850, 260, 300, 150),
+    pygame.Rect(0, 450, 300, 150)
 
+]
+
+car_rect = car.get_rect()
+car_rect.center = (454, 203)
 
 def reset_direction():
     global going_up, going_left, going_right, going_down
@@ -32,14 +39,14 @@ def reset_direction():
     going_right = False
     going_down = False
 
-def move_car(current_position):
+def move_car():
     global going_up, going_left, going_right, going_down
     global car
 
     key = pygame.key.get_pressed()
     if key[pygame.K_LEFT] == True:
         car_rect.x -= 5
-        if car_rect.collidelist(map_pos) == -1:
+        if car_rect.collidelist(walls) >= 0:
             car_rect.x += 5
         if not going_left:
             car = pygame.transform.rotate(default_car, 90)
@@ -47,7 +54,7 @@ def move_car(current_position):
             going_left = True
     if key[pygame.K_RIGHT] == True:
         car_rect.x += 5
-        if car_rect.collidelist(map_pos) == -1:
+        if car_rect.collidelist(walls) >= 0:
             car_rect.x -= 5
         if not going_right:
             car = pygame.transform.rotate(default_car, 270)
@@ -55,7 +62,7 @@ def move_car(current_position):
             going_right = True
     if key[pygame.K_UP] == True:
         car_rect.y -= 5
-        if car_rect.collidelist(map_pos) == -1:
+        if car_rect.collidelist(walls) >= 0:
             car_rect.y += 5
         if not going_up:
             car = default_car
@@ -63,7 +70,7 @@ def move_car(current_position):
             going_up = True
     if key[pygame.K_DOWN] == True:
         car_rect.y += 5
-        if car_rect.collidelist(map_pos) == -1:
+        if car_rect.collidelist(walls) >= 0:
             car_rect.y -= 5
         if not going_down:
             car = pygame.transform.rotate(default_car, 180)
@@ -76,16 +83,14 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        #if event.type == pygame.MOUSEMOTION:
-        #    print(f'Mouse position {event.pos}')
+        if event.type == pygame.MOUSEMOTION:
+            print(f'Mouse position {event.pos}')
 
-    pygame.draw.rect(screen, (255, 0, 255), rect_1)
-    pygame.draw.rect(screen, (255, 0, 255), rect_2)
-    pygame.draw.rect(screen, (255, 0, 255), rect_3)
-    pygame.draw.rect(screen, (255, 0, 255), rect_4)
-    move_car(car_rect)
+    for wall in walls:
+        pygame.draw.rect(screen, (255, 255, 255), wall)
+    move_car()
 
-    if car_rect.collidelist(map_pos) == -1:
+    if car_rect.collidelist(walls) >= 0:
         print("car hit")
 
     screen.blit(car, car_rect)

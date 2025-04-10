@@ -9,17 +9,15 @@ from osmviz.animation import Simulation, TrackingViz
 
 # The goal is to show 10 trains racing eastward across the US.
 
-right_lon = -(68 + 39.0 / 60)
-left_lon = -(118 + 15.0 / 60)
-top_lat = 45 + 46.0 / 60
-bottom_lat = 30 + 3.0 / 60
+top_lat, right_lon = 51.54775, -0.01841 # top-right corner
+bottom_lat, left_lon = 51.47810, -0.10905 # bottom-left corner
 
 begin_time = 0
-end_time = 60
+end_time = 10
 
 image_f = "images/car.png"
-zoom = 6
-num_trains = 10
+zoom = 18
+num_trains = 5
 
 track_vizs = []
 
@@ -51,7 +49,7 @@ for i in range(num_trains):
         image_f,
         loc_at_time,
         (begin_time, end_time),
-        (30, 46, -119, -68.5),
+        (bottom_lat, top_lat, left_lon, right_lon),
         1,
     )  # drawing order doesn't really matter here
 
