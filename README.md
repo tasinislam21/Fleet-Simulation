@@ -6,7 +6,7 @@
 
 <div align="center">
 
-<h4>A simulation developed using Pygame to simulate the movement of police vehicles across London.</h4>
+<h4>A simulation model developed using Pygame to simulate the movement of police vehicles across London.</h4>
 
 </div>
 

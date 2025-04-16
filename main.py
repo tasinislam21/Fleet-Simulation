@@ -1,5 +1,6 @@
 import pygame
 from map_generator import MapGenerator
+from Vehicle import Vehicle
 
 pygame.init()
 
@@ -21,10 +22,7 @@ map = MapGenerator("Random", SCREEN_WIDTH, SCREEN_HEIGHT)
 minx, miny, maxx, maxy = map.get_map_bounds()
 scale = map.get_scale()
 
-default_car = pygame.image.load("images/car.png").convert_alpha()
-car = pygame.image.load("images/car.png").convert_alpha()
-car_rect = car.get_rect()
-car_rect.center = (454, 203)
+vehicle = Vehicle(0)
 
 def normalize_coords(x, y):
     norm_x = int((x - minx) * scale)
@@ -40,41 +38,9 @@ def draw_map():
             building_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
         pygame.draw.polygon(map_surface, (67, 255, 255), building_coord) # draws 1 building at a time
 
-def reset_direction():
-    global going_up, going_left, going_right, going_down
-    going_up = False
-    going_left = False
-    going_right = False
-    going_down = False
-
-def move_car():
-    global going_up, going_left, going_right, going_down
-    global car
+def direction_key_handling():
     key = pygame.key.get_pressed()
-    if key[pygame.K_LEFT] == True:
-        car_rect.x -= 5
-        if not going_left:
-            car = pygame.transform.rotate(default_car, 90)
-            reset_direction()
-            going_left = True
-    if key[pygame.K_RIGHT] == True:
-        car_rect.x += 5
-        if not going_right:
-            car = pygame.transform.rotate(default_car, 270)
-            reset_direction()
-            going_right = True
-    if key[pygame.K_UP] == True:
-        car_rect.y -= 5
-        if not going_up:
-            car = default_car
-            reset_direction()
-            going_up = True
-    if key[pygame.K_DOWN] == True:
-        car_rect.y += 5
-        if not going_down:
-            car = pygame.transform.rotate(default_car, 180)
-            reset_direction()
-            going_down = True
+    vehicle.move(key)
 
 run = True
 draw_map()
@@ -84,11 +50,10 @@ while run:
             run = False
         #if event.type == pygame.MOUSEMOTION:
         #    print(f'Mouse position {event.pos}')
-    move_car()
     pygame.display.flip()
     screen.blit(map_surface, (0, 0))
-    screen.blit(car, car_rect)
-
+    vehicle.render(screen)
+    direction_key_handling()
     clock.tick(60)
 
 pygame.quit()
