@@ -1,7 +1,5 @@
 import pygame
-import geopandas
-import osmnx as ox
-from shapely.geometry import box
+from map_generator import MapGenerator
 
 pygame.init()
 
@@ -15,43 +13,32 @@ going_down = False
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Working With Rectangles")
+
+pygame.display.set_caption("Police vehicle simulator")
 map_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 map_surface.fill((0, 0, 0))
-
-place_name = "Hackney, UK"
-hackney = ox.geocode_to_gdf(place_name)
-polygon = box(-0.1, 51.57, -0.08, 51.56)
-poly_gdf = geopandas.GeoDataFrame([1], geometry=[polygon])
-hackney_clipped = hackney.clip(polygon)
-building_tags = {"building": True}
-buildings = ox.features_from_polygon(hackney_clipped['geometry'].iloc[0], building_tags)
-minx, miny, maxx, maxy = buildings.total_bounds
+map = MapGenerator("Random", SCREEN_WIDTH, SCREEN_HEIGHT)
+minx, miny, maxx, maxy = map.get_map_bounds()
+scale = map.get_scale()
 
 default_car = pygame.image.load("images/car.png").convert_alpha()
 car = pygame.image.load("images/car.png").convert_alpha()
 car_rect = car.get_rect()
 car_rect.center = (454, 203)
 
-scale_x = SCREEN_WIDTH / (maxx - minx)
-scale_y = SCREEN_HEIGHT / (maxy - miny)
-scale = min(scale_x, scale_y)
-
 def normalize_coords(x, y):
-    """Convert from geo coords to screen coords"""
     norm_x = int((x - minx) * scale)
     norm_y = int(SCREEN_HEIGHT - (y - miny) * scale)  # flip Y
     return (norm_x, norm_y)
 
-# Draw map
-for _, building in buildings.iterrows():
-    xx, yy = building['geometry'].exterior.coords.xy
-    building_coord = []
-    for polygon_index in range(len(xx)):
-        building_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
-    pygame.draw.polygon(map_surface, (67, 255, 255), building_coord)
-
-
+def draw_map():
+    buildings = map.get_buildings()
+    for _, building in buildings.iterrows():
+        xx, yy = building['geometry'].exterior.coords.xy
+        building_coord = []
+        for polygon_index in range(len(xx)):
+            building_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
+        pygame.draw.polygon(map_surface, (67, 255, 255), building_coord) # draws 1 building at a time
 
 def reset_direction():
     global going_up, going_left, going_right, going_down
@@ -90,6 +77,7 @@ def move_car():
             going_down = True
 
 run = True
+draw_map()
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
