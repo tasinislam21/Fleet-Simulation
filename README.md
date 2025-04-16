@@ -2,65 +2,56 @@
  <img height=350px src="./simulation-output.png" alt="Simulation output">
 </p>
 
-<h1 align="center">Basic Traffic Intersection Simulation</h1>
+<h1 align="center">Agent-based Police Fleet Simulation</h1>
 
 <div align="center">
 
-[![Python version](https://img.shields.io/badge/python-3.1+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
-<h4>A simulation developed from scratch using Pygame to simulate the movement of vehicles across a traffic intersection having traffic lights with a timer.</h4>
+<h4>A simulation developed using Pygame to simulate the movement of police vehicles across London.</h4>
 
 </div>
 
 -----------------------------------------
 ### Description
 
-* It contains a 4-way traffic intersection with traffic signals controlling the flow of traffic in each direction. 
-* Each signal has a timer on top of it which shows the time remaining for the signal to switch from green to yellow, yellow to red, or red to green. 
-* Vehicles such as cars, bikes, buses, and trucks are generated, and their movement is controlled according to the signals and the vehicles around them. 
-* This simulation can be further used for data analysis or to visualize AI or ML applications. 
+<ul>
+<li>Agent-based simulation model for police vehicle navigation in London</li>
+<li>Demonstrates vehicle movement based on two scenarios:</li>
+    <ul>
+    <li>Normal patrolling</li>
+    <li>Responding to emergencies at crime scenes</li>
+    </ul>
+<li>Users can:</li>
+    <ul>
+    <li>Adjust the number of vehicles in the fleet</li>
+    <li>Assess the impact on response times and vehicle utilisation</li>
+    </ul>
+<li>Enables fleet controllers to experiment and identify the optimal number of vehicles needed for each borough in London</li>
+</ul>
 
-Find a step-by-step guide to build this simulation [here](https://towardsdatascience.com/traffic-intersection-simulation-using-pygame-689d6bd7687a).
-
-------------------------------------------
 ### Demo
 
-The video below shows the final output of the simulation.
+Coming soon
 
-<p align="center">
-    <img src="./Demo.gif">
-</p>
-
-------------------------------------------
+---
 ### Prerequisites
 
 [Python 3.1+](https://www.python.org/downloads/)
 
-------------------------------------------
+---
 ### Installation
 
  * Step I: Clone the Repository
 ```sh
-      $ git clone https://github.com/mihir-m-gandhi/Basic-Traffic-Intersection-Simulation
+      $ git clone https://github.com/tasinislam21/Fleet-Simulation
 ```
   * Step II: Install the required packages
 ```sh
       # On the terminal, move into Basic-Traffic-Intersection-Simulation directory
-      $ cd Basic-Traffic-Intersection-Simulation
+      $ cd Fleet-Simulation
       $ pip install pygame
 ```
 * Step III: Run the code
 ```sh
       # To run simulation
-      $ python simulation.py
+      $ python main.py
 ```
-
-------------------------------------------
-### Author
-
-Mihir Gandhi - [mihir-m-gandhi](https://github.com/mihir-m-gandhi)
-
-------------------------------------------
-### License
-This project is licensed under the MIT - see the [LICENSE](./LICENSE) file for details.
