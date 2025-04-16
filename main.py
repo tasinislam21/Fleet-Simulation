@@ -22,7 +22,7 @@ map = MapGenerator("Random", SCREEN_WIDTH, SCREEN_HEIGHT)
 minx, miny, maxx, maxy = map.get_map_bounds()
 scale = map.get_scale()
 
-vehicle = Vehicle(0)
+vehicle = Vehicle(2)
 
 def normalize_coords(x, y):
     norm_x = int((x - minx) * scale)
@@ -54,6 +54,8 @@ while run:
     screen.blit(map_surface, (0, 0))
     vehicle.render(screen)
     direction_key_handling()
+    if vehicle.isEmergency():
+        vehicle.flash_light()
     clock.tick(60)
 
 pygame.quit()
