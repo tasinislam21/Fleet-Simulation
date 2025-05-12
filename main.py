@@ -38,12 +38,22 @@ def draw_map():
             building_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
         pygame.draw.polygon(map_surface, (67, 255, 255), building_coord) # draws 1 building at a time
 
+def draw_road():
+    roads = map.get_road()
+    for _, road in roads.iterrows():
+        xx, yy = road['geometry'].coords.xy
+        road_coord = []
+        for polygon_index in range(len(xx)):
+            road_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
+        pygame.draw.lines(map_surface, (200, 5, 5), False, road_coord)
+
 def direction_key_handling():
     key = pygame.key.get_pressed()
     vehicle.move(key)
 
 run = True
 draw_map()
+draw_road()
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

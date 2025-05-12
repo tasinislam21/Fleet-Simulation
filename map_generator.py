@@ -29,3 +29,8 @@ class MapGenerator:
     def get_buildings(self):
         building_tags = {"building": True}
         return ox.features_from_polygon(self.area['geometry'].iloc[0], building_tags)
+
+    def get_road(self):
+        road_tags = {"highway": True}
+        roads = ox.features_from_polygon(self.area['geometry'].iloc[0], road_tags)
+        return roads[roads.geom_type == 'LineString']
