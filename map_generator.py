@@ -14,17 +14,21 @@ class MapGenerator:
 
     def calculate_scale(self):
         self.minx, self.miny, self.maxx, self.maxy = self.area.total_bounds
+        self.minx = -0.104
+        self.maxx = -0.078
+        self.miny = 51.552
+        self.maxy = 51.574
+
         GEO_WIDTH = self.maxx - self.minx
         GEO_HEIGHT = self.maxy - self.miny
-        scale_x = self.SCREEN_WIDTH / GEO_WIDTH
-        scale_y = self.SCREEN_HEIGHT / GEO_HEIGHT
-        self.scale = min(scale_x, scale_y)
+        self.scale_x = self.SCREEN_WIDTH / GEO_WIDTH
+        self.scale_y = self.SCREEN_HEIGHT / GEO_HEIGHT
 
     def get_map_bounds(self):
         return self.minx, self.miny, self.maxx, self.maxy
 
     def get_scale(self):
-        return self.scale
+        return self.scale_x, self.scale_y
 
     def get_buildings(self):
         building_tags = {"building": True}
