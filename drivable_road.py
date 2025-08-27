@@ -1,4 +1,4 @@
-class DrivableRoad():
+class DrivableRoad:
     def __init__(self, full_road_coord):
         self.full_road_coord = full_road_coord
 

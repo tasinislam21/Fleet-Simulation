@@ -2,7 +2,7 @@ import pygame
 
 from drivable_road import DrivableRoad
 from map_generator import MapGenerator
-from Vehicle import Vehicle
+from Vehicle import PoliceFactory, CarFactory, BikeFactory
 pygame.init()
 
 SCREEN_WIDTH = 900
@@ -51,13 +51,21 @@ def get_road_coord():
     return full_road_coord
 
 if __name__ == "__main__":
-    full_road_coord = get_road_coord()
     draw_map()
     draw_road()
     drivable_road = DrivableRoad(get_road_coord())
     vehicles = []
-    vehicles.append(Vehicle(2, drivable_road))
-    vehicles.append(Vehicle(1, drivable_road))
+    police_factory = PoliceFactory()
+    car_factory = CarFactory()
+    bike_factory = BikeFactory()
+
+    vehicles.append(police_factory.create_vehicle(True, drivable_road))
+    vehicles.append(police_factory.create_vehicle(False, drivable_road))
+    vehicles.append(car_factory.create_vehicle(drivable_road))
+    vehicles.append(bike_factory.create_vehicle(drivable_road))
+    vehicles.append(bike_factory.create_vehicle(drivable_road))
+    vehicles.append(bike_factory.create_vehicle(drivable_road))
+    vehicles.append(bike_factory.create_vehicle(drivable_road))
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
