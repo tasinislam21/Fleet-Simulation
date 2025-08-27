@@ -1,3 +1,4 @@
+from random import randint
 import pygame
 import config as c
 from pygame.math import Vector2
@@ -18,8 +19,8 @@ class Vehicle(pygame.sprite.Sprite):
         self.direction_image = sprites.copy()
         self.image = self.direction_image[self.current_sprite]
         self.image_pos = self.image.get_rect()
-        self.waypoints = road_coord
-        self.waypoint_index = 0
+        self.waypoints = road_coord.get_drivable_road()
+        self.waypoint_index = randint(0, len(self.waypoints) - 1)
         self.speed = 2
         self.target = self.waypoints[self.waypoint_index]
         self.image_pos.x = self.target[0] + 3

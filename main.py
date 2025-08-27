@@ -1,4 +1,6 @@
 import pygame
+
+from drivable_road import DrivableRoad
 from map_generator import MapGenerator
 from Vehicle import Vehicle
 pygame.init()
@@ -52,7 +54,10 @@ if __name__ == "__main__":
     full_road_coord = get_road_coord()
     draw_map()
     draw_road()
-    vehicle = Vehicle(2, full_road_coord)
+    drivable_road = DrivableRoad(get_road_coord())
+    vehicles = []
+    vehicles.append(Vehicle(2, drivable_road))
+    vehicles.append(Vehicle(1, drivable_road))
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,10 +66,11 @@ if __name__ == "__main__":
             #    print(f'Mouse position {event.pos}')
         pygame.display.flip()
         screen.blit(map_surface, (0, 0))
-        vehicle.render(screen)
-        vehicle.update()
-        if vehicle.isEmergency():
-            vehicle.flash_light()
+        for vehicle in vehicles:
+            vehicle.render(screen)
+            vehicle.update()
+            if vehicle.isEmergency():
+                vehicle.flash_light()
         clock.tick(60)
 
 pygame.quit()
