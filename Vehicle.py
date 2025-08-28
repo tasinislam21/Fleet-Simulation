@@ -2,15 +2,19 @@ import pygame
 from random import randint
 from pygame.math import Vector2
 
+from drivable_road import DrivableRoad
+
+
 class BaseVehicle(pygame.sprite.Sprite):
-    def __init__(self, sprites, waypoints):
+    def __init__(self, sprites):
         super().__init__()
         self.current_sprite = 0
         self.ori_image = sprites.copy()
         self.direction_image = sprites.copy()
         self.image = self.direction_image[self.current_sprite]
         self.image_pos = self.image.get_rect()
-        self.waypoints = waypoints
+        drivable_road = DrivableRoad()
+        self.waypoints = drivable_road.get_drivable_road()
         self.waypoint_index = randint(0, len(self.waypoints) - 1)
         self.speed = 1
         self.target = self.waypoints[self.waypoint_index]
@@ -50,7 +54,7 @@ class BaseVehicle(pygame.sprite.Sprite):
         return self.image_pos
 
 class Police(BaseVehicle):
-    def __init__(self, emergency, waypoints):
+    def __init__(self, emergency):
         self.emergency = emergency
         if emergency:
             sprites = [
@@ -61,7 +65,7 @@ class Police(BaseVehicle):
             sprites = [
                 pygame.image.load('images/police.png')
             ]
-        super().__init__(sprites, waypoints)
+        super().__init__(sprites)
 
     def isEmergency(self):
         return self.emergency
@@ -73,33 +77,30 @@ class Police(BaseVehicle):
         self.image = self.direction_image[int(self.current_sprite)]
 
 class Car(BaseVehicle):
-    def __init__(self, waypoints):
+    def __init__(self):
         path = f"images/car.png"
         sprites = [pygame.image.load(path)]
-        super().__init__(sprites, waypoints)
+        super().__init__(sprites)
 
 class Bike(BaseVehicle):
-    def __init__(self, waypoints):
+    def __init__(self):
         path = f"images/bike.png"
         sprites = [pygame.image.load(path)]
-        super().__init__(sprites, waypoints)
+        super().__init__(sprites)
 
 class PoliceFactory:
     @staticmethod
-    def create_vehicle(emergency, road_coord):
-        waypoints = road_coord.get_drivable_road()
-        return Police(emergency, waypoints)
+    def create_vehicle(emergency):
+        return Police(emergency)
 
 
 class CarFactory:
     @staticmethod
-    def create_vehicle(road_coord):
-        waypoints = road_coord.get_drivable_road()
-        return Car(waypoints)
+    def create_vehicle():
+        return Car()
 
 
 class BikeFactory:
     @staticmethod
-    def create_vehicle(road_coord):
-        waypoints = road_coord.get_drivable_road()
-        return Bike(waypoints)
+    def create_vehicle():
+        return Bike()

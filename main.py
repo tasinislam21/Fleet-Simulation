@@ -53,19 +53,20 @@ def get_road_coord():
 if __name__ == "__main__":
     draw_map()
     draw_road()
-    drivable_road = DrivableRoad(get_road_coord())
+    drivable_road = DrivableRoad()
+    drivable_road.set_drivable_road(get_road_coord())
     vehicles = []
     police_factory = PoliceFactory()
     car_factory = CarFactory()
     bike_factory = BikeFactory()
 
-    vehicles.append(police_factory.create_vehicle(True, drivable_road))
-    vehicles.append(police_factory.create_vehicle(False, drivable_road))
-    vehicles.append(car_factory.create_vehicle(drivable_road))
-    vehicles.append(bike_factory.create_vehicle(drivable_road))
-    vehicles.append(bike_factory.create_vehicle(drivable_road))
-    vehicles.append(bike_factory.create_vehicle(drivable_road))
-    vehicles.append(bike_factory.create_vehicle(drivable_road))
+    vehicles.append(police_factory.create_vehicle(True))
+    vehicles.append(police_factory.create_vehicle(False))
+    vehicles.append(car_factory.create_vehicle())
+    vehicles.append(bike_factory.create_vehicle())
+    vehicles.append(bike_factory.create_vehicle())
+    vehicles.append(bike_factory.create_vehicle())
+    vehicles.append(bike_factory.create_vehicle())
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
