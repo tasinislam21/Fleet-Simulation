@@ -32,7 +32,9 @@ if __name__ == "__main__":
     draw_buildings()
     draw_road()
     drivable_road = DrivableRoad()
-    drivable_road.set_drivable_road(map.get_road_coord())
+    drivable_road.set_graph(map.get_graph())
+    drivable_road.set_node_positions(map.get_map_nodes())
+
     vehicles = []
     police_factory = PoliceFactory()
     car_factory = CarFactory()
