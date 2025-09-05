@@ -5,7 +5,7 @@ from map_generator import MapGenerator
 from Vehicle import PoliceFactory, CarFactory, BikeFactory
 pygame.init()
 
-SCREEN_WIDTH = 900
+SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 900
 
 clock = pygame.time.Clock()
@@ -18,43 +18,21 @@ map = MapGenerator("Random", SCREEN_WIDTH, SCREEN_HEIGHT)
 minx, miny, maxx, maxy = map.get_map_bounds()
 scale_x, scale_y = map.get_scale()
 
-def normalize_coords(x, y):
-    norm_x = int((x - minx) * scale_x)
-    norm_y = int(SCREEN_HEIGHT - (y - miny) * scale_y)  # flip Y
-    return (norm_x, norm_y)
-
-def draw_map():
-    buildings = map.get_buildings()
-    for _, building in buildings.iterrows():
-        xx, yy = building['geometry'].exterior.coords.xy
-        building_coord = []
-        for polygon_index in range(len(xx)):
-            building_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
-        pygame.draw.polygon(map_surface, (67, 255, 255), building_coord) # draws 1 building at a time
+def draw_buildings():
+    buildings = map.get_buildings_polygon()
+    for building in buildings:
+        pygame.draw.polygon(map_surface, (67, 255, 255), building) # draws 1 building at a time
 
 def draw_road():
-    roads = map.get_road()
-    for _, road in roads.iterrows():
-        xx, yy = road['geometry'].coords.xy
-        road_coord = []
-        for polygon_index in range(len(xx)):
-            road_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
-        pygame.draw.lines(map_surface, (200, 5, 5), False, road_coord)
-
-def get_road_coord():
-    roads = map.get_road()
-    full_road_coord = []
-    for _, road in roads.iterrows():
-        xx, yy = road['geometry'].coords.xy
-        for polygon_index in range(len(xx)):
-            full_road_coord.append(normalize_coords(xx[polygon_index], yy[polygon_index]))
-    return full_road_coord
+    roads = map.get_road_line()
+    for road in roads:
+        pygame.draw.lines(map_surface, (200, 5, 5), False, road, width= 5)
 
 if __name__ == "__main__":
-    draw_map()
+    draw_buildings()
     draw_road()
     drivable_road = DrivableRoad()
-    drivable_road.set_drivable_road(get_road_coord())
+    drivable_road.set_drivable_road(map.get_road_coord())
     vehicles = []
     police_factory = PoliceFactory()
     car_factory = CarFactory()
@@ -68,11 +46,6 @@ if __name__ == "__main__":
     vehicles.append(bike_factory.create_vehicle())
     vehicles.append(bike_factory.create_vehicle())
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            #if event.type == pygame.MOUSEMOTION:
-            #    print(f'Mouse position {event.pos}')
         pygame.display.flip()
         screen.blit(map_surface, (0, 0))
         for vehicle in vehicles:
