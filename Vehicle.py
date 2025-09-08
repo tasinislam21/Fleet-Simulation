@@ -52,7 +52,7 @@ class BaseVehicle(pygame.sprite.Sprite):
 
     def move(self):
         # Current target waypoint
-        target = pygame.Vector2(self.path[self.current_path + 1])
+        target = pygame.Vector2(self.path[self.current_path+1])
         heading = target - self.pos
         distance = heading.length()
 
@@ -89,6 +89,8 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.get_new_dest()
         self.move()
         self.rotate()
+        if not self.isEmergency():
+            self.image = self.modified_sprites[0]
 
     def isEmergency(self):
         return False
@@ -98,9 +100,6 @@ class BaseVehicle(pygame.sprite.Sprite):
 
     def get_pos(self):
         return self.image_pos
-
-
-
 
 class Police(BaseVehicle):
     def __init__(self, emergency):
