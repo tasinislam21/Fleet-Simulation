@@ -47,7 +47,11 @@ if __name__ == "__main__":
     vehicles.append(bike_factory.create_vehicle())
     vehicles.append(bike_factory.create_vehicle())
     vehicles.append(bike_factory.create_vehicle())
-    while True:
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
         pygame.display.flip()
         screen.blit(map_surface, (0, 0))
         for vehicle in vehicles:

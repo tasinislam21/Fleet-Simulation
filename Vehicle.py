@@ -1,5 +1,4 @@
 import pygame
-from random import randint
 from pygame.math import Vector2
 import networkx as nx
 
@@ -10,9 +9,9 @@ class BaseVehicle(pygame.sprite.Sprite):
     def __init__(self, sprites):
         super().__init__()
         self.current_sprite = 0
-        self.ori_image = sprites.copy()
-        self.direction_image = sprites.copy()
-        self.image = self.direction_image[self.current_sprite]
+        self.sprites = sprites.copy()
+        self.modified_sprites = [s.copy() for s in sprites]
+        self.image = self.modified_sprites[self.current_sprite]
         self.image_pos = self.image.get_rect()
         self.drivable_road = DrivableRoad()
         self.start_node = self.drivable_road.get_random_node()
@@ -24,7 +23,9 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.pos = Vector2(self.path[0])
         self.target_radius = 50
         self.vel = Vector2(0, 0)
-        self.current_index = 0
+        self.current_path = 0
+        self.angle = 0
+
 
     def flash_light(self):
         pass
@@ -41,32 +42,53 @@ class BaseVehicle(pygame.sprite.Sprite):
             except nx.NetworkXNoPath:
                 continue
 
-    def update(self):
+    def get_new_dest(self):
         # If we've reached the end of the path, pick a new route
-        if self.current_index >= len(self.path) - 1:
+        if self.current_path >= len(self.path) - 1:
             self.start_node = self.end_node
             self.get_safe_path()
-            self.current_index = 0
+            self.current_path = 0
             self.pos = pygame.Vector2(self.path[0])
 
+    def move(self):
         # Current target waypoint
-        target = pygame.Vector2(self.path[self.current_index + 1])
+        target = pygame.Vector2(self.path[self.current_path + 1])
         heading = target - self.pos
         distance = heading.length()
 
         if distance < 1:  # close enough → go to next waypoint
-            self.current_index += 1
+            self.current_path += 1
             return
 
         heading.normalize_ip()
-
-        if distance <= self.target_radius and self.current_index == len(self.path) - 2:
-            self.vel = heading * (distance / self.target_radius * self.speed)
+        if distance <= self.target_radius and self.current_path == len(self.path) - 2:
+            self.vel = heading * (
+                        distance / self.target_radius * self.speed)  # slow down when it reaches close to the destination
         else:
             self.vel = heading * self.speed
-
         self.pos += self.vel
-        self.image_pos.center = self.pos
+
+    def rotate(self):
+        if self.vel.length_squared() > 0:  # only rotate if moving
+            target_angle = self.vel.angle_to(pygame.Vector2(0, -1))
+
+            rotate_speed = 5
+            diff = (target_angle - self.angle + 180) % 360 - 180  # shortest signed difference
+
+            if abs(diff) > rotate_speed:
+                self.angle += rotate_speed if diff > 0 else -rotate_speed
+            else:
+                self.angle = target_angle
+
+            for i, image in enumerate(self.sprites):
+                rotated = pygame.transform.rotate(image, self.angle)
+                self.modified_sprites[i] = rotated
+            self.image_pos = self.image.get_rect(center=self.pos)
+
+    def update(self):
+        self.get_new_dest()
+        self.move()
+        self.rotate()
 
     def isEmergency(self):
         return False
@@ -76,6 +98,9 @@ class BaseVehicle(pygame.sprite.Sprite):
 
     def get_pos(self):
         return self.image_pos
+
+
+
 
 class Police(BaseVehicle):
     def __init__(self, emergency):
@@ -96,9 +121,9 @@ class Police(BaseVehicle):
 
     def flash_light(self):
         self.current_sprite += 0.15
-        if int(self.current_sprite) >= len(self.direction_image):
+        if int(self.current_sprite) >= len(self.sprites):
             self.current_sprite = 0
-        self.image = self.direction_image[int(self.current_sprite)]
+        self.image = self.modified_sprites[int(self.current_sprite)]
 
 class Car(BaseVehicle):
     def __init__(self):
