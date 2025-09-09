@@ -1,8 +1,16 @@
 import pygame
-
 from drivable_road import DrivableRoad
 from map_generator import MapGenerator
 from Vehicle import PoliceFactory, CarFactory, BikeFactory
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--number_of_emergency_police', type=int, default=3)
+parser.add_argument('--number_of_normal_police', type=int, default=7)
+parser.add_argument('--number_civilian_car', type=int, default=15)
+parser.add_argument('--number_civilian_bike', type=int, default=7)
+args = parser.parse_args()
+
 pygame.init()
 
 SCREEN_WIDTH = 1200
@@ -39,14 +47,15 @@ if __name__ == "__main__":
     police_factory = PoliceFactory()
     car_factory = CarFactory()
     bike_factory = BikeFactory()
+    for _ in range(args.number_of_emergency_police):
+        vehicles.append(police_factory.create_vehicle(True))
+    for _ in range(args.number_of_normal_police):
+        vehicles.append(police_factory.create_vehicle(False))
+    for _ in range(args.number_civilian_car):
+        vehicles.append(car_factory.create_vehicle())
+    for _ in range(args.number_civilian_bike):
+        vehicles.append(bike_factory.create_vehicle())
 
-    vehicles.append(police_factory.create_vehicle(True))
-    vehicles.append(police_factory.create_vehicle(False))
-    vehicles.append(car_factory.create_vehicle())
-    vehicles.append(bike_factory.create_vehicle())
-    vehicles.append(bike_factory.create_vehicle())
-    vehicles.append(bike_factory.create_vehicle())
-    vehicles.append(bike_factory.create_vehicle())
     running = True
     while running:
         for event in pygame.event.get():
