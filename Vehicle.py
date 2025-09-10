@@ -4,14 +4,7 @@ import networkx as nx
 from drivable_road import DrivableRoad
 
 drivable_road = DrivableRoad()
-def get_safe_path(start_node):
-    while True:
-        end_node = drivable_road.get_random_node()
-        try:
-            path = drivable_road.get_path(start_node, end_node)
-            return end_node, path
-        except nx.NetworkXNoPath:
-            continue
+
 
 class BaseVehicle(pygame.sprite.Sprite):
     def __init__(self, sprites):
@@ -22,8 +15,9 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.image = self.modified_sprites[self.current_sprite]
         self.image_pos = self.image.get_rect()
         self.start_node = drivable_road.get_random_node()
-        self.end_node, self.path = get_safe_path(self.start_node)
-        self.speed = 1
+        self.end_node = drivable_road.get_random_node()
+        self.get_safe_path()
+        self.speed = 1.5
         self.image_pos.x = self.path[0][0] + 1
         self.image_pos.y = self.path[0][1] + 1
         self.pos = Vector2(self.path[0])
@@ -38,9 +32,23 @@ class BaseVehicle(pygame.sprite.Sprite):
     def render(self, screen):
         screen.blit(self.image, self.image_pos)
 
+    def get_safe_path(self):
+        number_of_tries = 0
+        self.start_node = self.end_node
+        while True:
+            if number_of_tries >= 5:
+                self.start_node = drivable_road.get_random_node()
+            self.end_node = drivable_road.get_random_node()
+            try:
+                self.path = drivable_road.get_path(self.start_node, self.end_node)
+                break
+            except nx.NetworkXNoPath:
+                number_of_tries += 1
+                continue
+
     def get_new_dest(self):
         self.start_node = self.end_node
-        self.end_node, self.path = get_safe_path(self.start_node)
+        self.get_safe_path()
         self.current_path = 0
         self.pos = pygame.Vector2(self.path[0])
 
@@ -56,11 +64,12 @@ class BaseVehicle(pygame.sprite.Sprite):
             return True
 
         heading.normalize_ip()
+        step = min(self.speed, distance) - 0.1  # <-- prevents overshoot
         if distance <= self.target_radius and self.current_path == len(self.path) - 2:
             self.vel = heading * (
-                        distance / self.target_radius * self.speed)  # slow down when it reaches close to the destination
+                        distance / self.target_radius * step)  # slow down when it reaches close to the destination
         else:
-            self.vel = heading * self.speed
+            self.vel = heading * step
         self.pos += self.vel
         return True
 
@@ -85,9 +94,7 @@ class BaseVehicle(pygame.sprite.Sprite):
         if not self.did_it_move():
             self.get_new_dest()
         self.rotate()
-
         self.image_pos.center = self.pos
-
         if not self.isEmergency():
             self.image = self.modified_sprites[0]
 
