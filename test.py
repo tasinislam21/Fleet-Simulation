@@ -1,60 +1,37 @@
-import pygame as pg
-from pygame.math import Vector2
+from pygame import Rect
 
-class Entity(pg.sprite.Sprite):
+r = Rect(1, 1, 10, 10)
 
-    def __init__(self, pos, waypoints):
-        super().__init__()
-        self.image = pg.Surface((30, 50))
-        self.image.fill(pg.Color('dodgerblue1'))
-        self.rect = self.image.get_rect(center=pos)
-        self.vel = Vector2(0, 0)
-        self.max_speed = 3
-        self.pos = Vector2(pos)
-        self.waypoints = waypoints
-        self.waypoint_index = 0
-        self.target = self.waypoints[self.waypoint_index]
-        self.target_radius = 50
+rects = [
+    Rect(1, 1, 10, 10),
+    Rect(5, 5, 10, 10),
+    Rect(15, 15, 1, 1),
+    Rect(2, 2, 1, 1),
+]
 
-    def update(self):
-        # A vector pointing from self to the target.
-        heading = self.target - self.pos
-        distance = heading.length()  # Distance to the target.
-        heading.normalize_ip()
-        if distance <= 2:  # We're closer than 2 pixels.
-            # Increment the waypoint index to swtich the target.
-            # The modulo sets the index back to 0 if it's equal to the length.
-            self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
-            self.target = self.waypoints[self.waypoint_index]
-        if distance <= self.target_radius:
-            # If we're approaching the target, we slow down.
-            self.vel = heading * (distance / self.target_radius * self.max_speed)
-        else:  # Otherwise move with max_speed.
-            self.vel = heading * self.max_speed
+result = r.collideobjects(rects)  # -> <rect(1, 1, 10, 10)>
+print(result)
 
-        self.pos += self.vel
-        self.rect.center = self.pos
+# front_car = self.check_front_vehicle(vehicles)
 
+# if front_car:
+#     # slow down to zero when too close
+#     distance = (front_car.pos - self.pos).length()
+#     if distance < 40:
+#         self.vel *= 0.5  # reduce speed
+#     if distance < 20:
+#         self.vel *= 0  # full stop
 
-def main():
-    screen = pg.display.set_mode((640, 480))
-    clock = pg.time.Clock()
-    waypoints = [(200, 100), (500, 400), (100, 300)]
-    all_sprites = pg.sprite.Group(Entity((100, 300), waypoints))
-    done = False
-    while not done:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                done = True
-        all_sprites.update()
-        screen.fill((0))
-        all_sprites.draw(screen)
-        for point in waypoints:
-            pg.draw.rect(screen, (90, 200, 40), (point, (4, 4)))
-        pg.display.flip()
-        clock.tick(60)
+def check_front_vehicle(self, vehicles, safe_distance=40):
+    for other in vehicles:
+        if other is self:
+            continue
 
-if __name__ == '__main__':
-    pg.init()
-    main()
-    pg.quit()
+        offset = other.pos - self.pos
+        # Is the other car roughly in front of me?
+        if self.vel.length_squared() > 0:
+            forward = self.vel.normalize()
+            if forward.dot(offset.normalize()) > 0.7:  # ~within 45° cone ahead
+                if offset.length() < safe_distance:
+                    return other
+    return None

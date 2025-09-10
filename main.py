@@ -43,18 +43,18 @@ if __name__ == "__main__":
     drivable_road.set_graph(map.get_graph())
     drivable_road.set_node_positions(map.get_map_nodes())
 
-    vehicles = []
+    vehicles = pygame.sprite.Group()
     police_factory = PoliceFactory()
     car_factory = CarFactory()
     bike_factory = BikeFactory()
     for _ in range(args.number_of_emergency_police):
-        vehicles.append(police_factory.create_vehicle(True))
+        vehicles.add(police_factory.create_vehicle(True))
     for _ in range(args.number_of_normal_police):
-        vehicles.append(police_factory.create_vehicle(False))
+        vehicles.add(police_factory.create_vehicle(False))
     for _ in range(args.number_civilian_car):
-        vehicles.append(car_factory.create_vehicle())
+        vehicles.add(car_factory.create_vehicle())
     for _ in range(args.number_civilian_bike):
-        vehicles.append(bike_factory.create_vehicle())
+        vehicles.add(bike_factory.create_vehicle())
 
     running = True
     while running:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         screen.blit(map_surface, (0, 0))
         for vehicle in vehicles:
             vehicle.render(screen)
-            vehicle.update()
+            vehicle.update(vehicles)
             if vehicle.isEmergency():
                 vehicle.flash_light()
         clock.tick(60)

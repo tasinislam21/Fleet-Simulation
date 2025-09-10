@@ -1,9 +1,17 @@
 import pygame
 from pygame.math import Vector2
 import networkx as nx
-
 from drivable_road import DrivableRoad
 
+drivable_road = DrivableRoad()
+def get_safe_path(start_node):
+    while True:
+        end_node = drivable_road.get_random_node()
+        try:
+            path = drivable_road.get_path(start_node, end_node)
+            return end_node, path
+        except nx.NetworkXNoPath:
+            continue
 
 class BaseVehicle(pygame.sprite.Sprite):
     def __init__(self, sprites):
@@ -13,10 +21,8 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.modified_sprites = [s.copy() for s in sprites]
         self.image = self.modified_sprites[self.current_sprite]
         self.image_pos = self.image.get_rect()
-        self.drivable_road = DrivableRoad()
-        self.start_node = self.drivable_road.get_random_node()
-        self.end_node = self.drivable_road.get_random_node()
-        self.path = self.drivable_road.get_path(self.start_node, self.end_node)
+        self.start_node = drivable_road.get_random_node()
+        self.end_node, self.path = get_safe_path(self.start_node)
         self.speed = 1
         self.image_pos.x = self.path[0][0] + 1
         self.image_pos.y = self.path[0][1] + 1
@@ -26,39 +32,28 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.current_path = 0
         self.angle = 0
 
-
     def flash_light(self):
         pass
 
     def render(self, screen):
         screen.blit(self.image, self.image_pos)
 
-    def get_safe_path(self):
-        while True:
-            self.end_node = self.drivable_road.get_random_node()
-            try:
-                self.path = self.drivable_road.get_path(self.start_node, self.end_node)
-                break
-            except nx.NetworkXNoPath:
-                continue
-
     def get_new_dest(self):
-        # If we've reached the end of the path, pick a new route
-        if self.current_path >= len(self.path) - 1:
-            self.start_node = self.end_node
-            self.get_safe_path()
-            self.current_path = 0
-            self.pos = pygame.Vector2(self.path[0])
+        self.start_node = self.end_node
+        self.end_node, self.path = get_safe_path(self.start_node)
+        self.current_path = 0
+        self.pos = pygame.Vector2(self.path[0])
 
-    def move(self):
-        # Current target waypoint
+    def did_it_move(self):
+        if (self.current_path == len(self.path) - 1):
+            return False
         target = pygame.Vector2(self.path[self.current_path+1])
         heading = target - self.pos
         distance = heading.length()
 
         if distance < 1:  # close enough → go to next waypoint
             self.current_path += 1
-            return
+            return True
 
         heading.normalize_ip()
         if distance <= self.target_radius and self.current_path == len(self.path) - 2:
@@ -67,6 +62,7 @@ class BaseVehicle(pygame.sprite.Sprite):
         else:
             self.vel = heading * self.speed
         self.pos += self.vel
+        return True
 
     def rotate(self):
         if self.vel.length_squared() > 0:  # only rotate if moving
@@ -85,10 +81,14 @@ class BaseVehicle(pygame.sprite.Sprite):
                 self.modified_sprites[i] = rotated
             self.image_pos = self.image.get_rect(center=self.pos)
 
-    def update(self):
-        self.get_new_dest()
-        self.move()
+    def update(self, vehicles):
+        if not self.did_it_move():
+            self.get_new_dest()
         self.rotate()
+
+        self.pos += self.vel
+        self.image_pos.center = self.pos
+
         if not self.isEmergency():
             self.image = self.modified_sprites[0]
 
