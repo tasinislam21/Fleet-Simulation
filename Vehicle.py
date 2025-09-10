@@ -86,7 +86,6 @@ class BaseVehicle(pygame.sprite.Sprite):
             self.get_new_dest()
         self.rotate()
 
-        self.pos += self.vel
         self.image_pos.center = self.pos
 
         if not self.isEmergency():
