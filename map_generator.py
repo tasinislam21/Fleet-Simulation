@@ -75,5 +75,4 @@ class MapGenerator:
             node: self._normalize_coords(data['x'], data['y'])
             for node, data in self.graph.nodes(data=True)
         }
-
         return node_positions

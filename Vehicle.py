@@ -52,7 +52,7 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.current_path = 0
         self.pos = pygame.Vector2(self.path[0])
 
-    def did_it_move(self):
+    def can_it_move(self):
         if (self.current_path == len(self.path) - 1):
             return False
         target = pygame.Vector2(self.path[self.current_path+1])
@@ -70,7 +70,6 @@ class BaseVehicle(pygame.sprite.Sprite):
                         distance / self.target_radius * step)  # slow down when it reaches close to the destination
         else:
             self.vel = heading * step
-        self.pos += self.vel
         return True
 
     def rotate(self):
@@ -90,8 +89,27 @@ class BaseVehicle(pygame.sprite.Sprite):
                 self.modified_sprites[i] = rotated
             self.image_pos = self.image.get_rect(center=self.pos)
 
+    def front_clear(self, vehicles, safe_distance=40):
+        for other in vehicles:
+            if other is self:
+                continue
+
+            offset = other.pos - self.pos
+
+            if offset.length_squared() == 0:  # Same position
+                continue
+
+            if self.vel.length_squared() > 0:
+                forward = self.vel.normalize()
+                if forward.dot(offset.normalize()) > 0.7:  # ~within 45° cone ahead
+                    if offset.length() < safe_distance:
+                        return other
+        return None
+
     def update(self, vehicles):
-        if not self.did_it_move():
+        if self.can_it_move() and self.front_clear(vehicles) is None:
+            self.pos += self.vel
+        elif not self.can_it_move():
             self.get_new_dest()
         self.rotate()
         self.image_pos.center = self.pos
