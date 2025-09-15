@@ -107,7 +107,7 @@ class BaseVehicle(pygame.sprite.Sprite):
         return None
 
     def update(self, vehicles):
-        if self.can_it_move() and self.front_clear(vehicles) is None:
+        if self.can_it_move(): #and self.front_clear(vehicles) is None:
             self.pos += self.vel
         elif not self.can_it_move():
             self.get_new_dest()
