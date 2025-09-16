@@ -1,3 +1,6 @@
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 900
+
 defaultGreen = {0:10, 1:10, 2:10, 3:10}
 defaultRed = 150
 defaultYellow = 5

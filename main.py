@@ -1,9 +1,9 @@
 import pygame
 from drivable_road import DrivableRoad
-from map_generator import MapGenerator
+from map_generator import Hackney
 from Vehicle import PoliceFactory, CarFactory, BikeFactory
 import argparse
-
+import config as c
 parser = argparse.ArgumentParser()
 parser.add_argument('--number_of_emergency_police', type=int, default=3)
 parser.add_argument('--number_of_normal_police', type=int, default=7)
@@ -13,16 +13,13 @@ args = parser.parse_args()
 
 pygame.init()
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 900
-
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
 
 pygame.display.set_caption("Police vehicle simulator")
-map_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+map_surface = pygame.Surface((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
 map_surface.fill((0, 0, 0))
-map = MapGenerator("Random", SCREEN_WIDTH, SCREEN_HEIGHT)
+map = Hackney()
 minx, miny, maxx, maxy = map.get_map_bounds()
 scale_x, scale_y = map.get_scale()
 

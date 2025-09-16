@@ -24,11 +24,13 @@ class DrivableRoad(object):
         route = nx.shortest_path(self.graph, source, target, weight="length")
         for i in route:
             path_coords.append(self.node_positions.get(i))
-        return path_coords
+        return path_coords, route
 
     def get_max_speed(self, start_node, end_node):
         edge = self.edges.loc[
             self.edges.index.get_level_values(0).isin([start_node]) &
             self.edges.index.get_level_values(1).isin([end_node])
             ]
-        return int((edge.maxspeed.item())[:-4])
+        #return int((edge.maxspeed.item())[:-4])
+        return 1.5
+        # hard coded for now......

@@ -40,7 +40,7 @@ class BaseVehicle(pygame.sprite.Sprite):
                 self.start_node = drivable_road.get_random_node()
             self.end_node = drivable_road.get_random_node()
             try:
-                self.path = drivable_road.get_path(self.start_node, self.end_node)
+                self.path, self.node_path = drivable_road.get_path(self.start_node, self.end_node)
                 break
             except nx.NetworkXNoPath:
                 number_of_tries += 1
@@ -64,6 +64,7 @@ class BaseVehicle(pygame.sprite.Sprite):
             return True
 
         heading.normalize_ip()
+        self.speed = drivable_road.get_max_speed(self.node_path[self.current_path], self.node_path[self.current_path+1])
         step = min(self.speed, distance) - 0.1  # <-- prevents overshoot
         if distance <= self.target_radius and self.current_path == len(self.path) - 2:
             self.vel = heading * (
