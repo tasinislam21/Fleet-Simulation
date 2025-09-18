@@ -2,9 +2,16 @@ import pygame
 from pygame.math import Vector2
 import networkx as nx
 from drivable_road import DrivableRoad
+import math
 
 drivable_road = DrivableRoad()
 
+def rotate_vector(vec, angle_degrees):
+    angle = math.radians(angle_degrees)
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    return vec.__class__(
+        vec.x * cos_a - vec.y * sin_a,
+        vec.x * sin_a + vec.y * cos_a)
 
 class BaseVehicle(pygame.sprite.Sprite):
     def __init__(self, sprites):
@@ -104,14 +111,21 @@ class BaseVehicle(pygame.sprite.Sprite):
                 forward = self.vel.normalize()
                 if forward.dot(offset.normalize()) > 0.7:  # ~within 45° cone ahead
                     if offset.length() < safe_distance:
-                        return other
-        return None
+                        return False
+        return True
+
+    def avoid_blocker(self):
+        # rotate velocity 20° left or right (could randomize to avoid all picking same side)
+        self.vel = rotate_vector(self.vel, 20).normalize() * self.vel.length()
+        self.pos += self.vel
 
     def update(self, vehicles):
-        if self.can_it_move(): #and self.front_clear(vehicles) is None:
+        if self.can_it_move() and self.front_clear(vehicles) is True:
             self.pos += self.vel
         elif not self.can_it_move():
             self.get_new_dest()
+        if self.front_clear(vehicles) is False:
+            self.avoid_blocker()
         self.rotate()
         self.image_pos.center = self.pos
         if not self.isEmergency():
