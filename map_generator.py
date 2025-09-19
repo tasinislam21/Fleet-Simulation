@@ -93,3 +93,11 @@ class Newham(MapGenerator):
         place_name = "Hackney, UK"  # temp
         clip_polygon = box(-0.08, 51.545, -0.06, 51.535)
         super().__init__(place_name, clip_polygon)
+
+def map_factory(borough ="Hackney"):
+    localizers = {
+        "Hackney": Hackney,
+        "Redbridge": Redbridge,
+        "Newham": Newham,
+    }
+    return localizers[borough]()

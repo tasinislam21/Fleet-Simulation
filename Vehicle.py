@@ -1,10 +1,22 @@
 import pygame
 from pygame.math import Vector2
 import networkx as nx
+from pygments.lexers import q
+
 from drivable_road import DrivableRoad
 import math
+import time
 
 drivable_road = DrivableRoad()
+
+###### Load sprites into memory once#########
+car_sprites = [pygame.image.load("images/car.png")]
+bike_sprites = [pygame.image.load("images/bike.png")]
+police_normal_sprites = [pygame.image.load("images/police.png")]
+police_emergency_sprites = [
+                pygame.image.load('images/response_police/police_red.png'),
+                pygame.image.load('images/response_police/police_blue.png')
+            ]
 
 def rotate_vector(vec, angle_degrees):
     angle = math.radians(angle_degrees)
@@ -35,6 +47,12 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.angle = 0
 
     def flash_light(self):
+        pass
+
+    def set_emergency(self, state: bool):
+        pass
+
+    def reload_sprites(self):
         pass
 
     def render(self, screen):
@@ -138,10 +156,10 @@ class BaseVehicle(pygame.sprite.Sprite):
             self.avoid_blocker()
         self.rotate()
         self.image_pos.center = self.current_position
-        if not self.isEmergency():
+        if not self.is_emergency():
             self.image = self.modified_sprites[0]
 
-    def isEmergency(self):
+    def is_emergency(self):
         return False
 
     def get_object(self):
@@ -150,21 +168,16 @@ class BaseVehicle(pygame.sprite.Sprite):
     def get_pos(self):
         return self.image_pos
 
-class Police(BaseVehicle):
-    def __init__(self, emergency):
-        self.emergency = emergency
-        if emergency:
-            sprites = [
-                pygame.image.load('images/response_police/police_red.png'),
-                pygame.image.load('images/response_police/police_blue.png')
-            ]
-        else:
-            sprites = [
-                pygame.image.load('images/police.png')
-            ]
-        super().__init__(sprites)
+    def get_activity_time(self):
+        return 0
 
-    def isEmergency(self):
+class Police(BaseVehicle):
+    def __init__(self):
+        self.emergency = False
+        self.activity_time = time.time()
+        super().__init__(police_normal_sprites)
+
+    def is_emergency(self):
         return self.emergency
 
     def flash_light(self):
@@ -173,31 +186,37 @@ class Police(BaseVehicle):
             self.current_sprite = 0
         self.image = self.modified_sprites[int(self.current_sprite)]
 
+    def set_emergency(self, state: bool):
+        self.emergency = state
+        self.reload_sprites()
+
+    def reload_sprites(self):
+        self.activity_time = time.time()
+        if self.emergency:
+            sprites = police_emergency_sprites
+        else:
+            sprites = police_normal_sprites
+        self.current_sprite = 0
+        self.sprites = sprites.copy()
+        self.modified_sprites = [s.copy() for s in sprites]
+        self.image = self.modified_sprites[self.current_sprite]
+        self.image_pos = self.image.get_rect()
+
+    def get_activity_time(self):
+        return time.time() - self.activity_time
+
 class Car(BaseVehicle):
     def __init__(self):
-        path = f"images/car.png"
-        sprites = [pygame.image.load(path)]
-        super().__init__(sprites)
+        super().__init__(car_sprites)
 
 class Bike(BaseVehicle):
     def __init__(self):
-        path = f"images/bike.png"
-        sprites = [pygame.image.load(path)]
-        super().__init__(sprites)
+        super().__init__(bike_sprites)
 
-class PoliceFactory:
-    @staticmethod
-    def create_vehicle(emergency):
-        return Police(emergency)
-
-
-class CarFactory:
-    @staticmethod
-    def create_vehicle():
-        return Car()
-
-
-class BikeFactory:
-    @staticmethod
-    def create_vehicle():
-        return Bike()
+def vehicle_factory(type ="Car"):
+    localizers = {
+        "Car": Car,
+        "Bike": Bike,
+        "Police": Police,
+    }
+    return localizers[type]()
