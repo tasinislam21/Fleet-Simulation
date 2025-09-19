@@ -27,9 +27,10 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.speed = 1.5
         self.image_pos.x = self.path[0][0] + 1
         self.image_pos.y = self.path[0][1] + 1
-        self.pos = Vector2(self.path[0])
+        self.current_position = Vector2(self.path[0])
         self.target_radius = 50
         self.vel = Vector2(0, 0)
+        self.distance2target = Vector2()
         self.current_path = 0
         self.angle = 0
 
@@ -53,32 +54,39 @@ class BaseVehicle(pygame.sprite.Sprite):
                 number_of_tries += 1
                 continue
 
-    def get_new_dest(self):
+    def update_new_dest(self):
         self.start_node = self.end_node
         self.get_safe_path()
         self.current_path = 0
-        self.pos = pygame.Vector2(self.path[0])
+        self.current_position = pygame.Vector2(self.path[0])
 
-    def can_it_move(self):
-        if (self.current_path == len(self.path) - 1):
-            return False
-        target = pygame.Vector2(self.path[self.current_path+1])
-        heading = target - self.pos
-        distance = heading.length()
+    def update_distance_to_target(self):
+        target_position = pygame.Vector2(self.path[self.current_path + 1])
+        self.distance2target = target_position - self.current_position
 
-        if distance < 1:  # close enough → go to next waypoint
-            self.current_path += 1
-            return True
-
-        heading.normalize_ip()
-        self.speed = drivable_road.get_max_speed(self.node_path[self.current_path], self.node_path[self.current_path+1])
+    def update_velocity(self):
+        distance = self.distance2target.length()
+        self.distance2target.normalize_ip()
+        self.speed = drivable_road.get_max_speed(self.node_path[self.current_path -1],
+                                                 self.node_path[self.current_path])
         step = min(self.speed, distance) - 0.1  # <-- prevents overshoot
         if distance <= self.target_radius and self.current_path == len(self.path) - 2:
-            self.vel = heading * (
-                        distance / self.target_radius * step)  # slow down when it reaches close to the destination
+            self.vel = self.distance2target * (
+                    distance / self.target_radius * step)  # slow down when it reaches close to the destination
         else:
-            self.vel = heading * step
-        return True
+            self.vel = self.distance2target * step
+
+    def update_edge(self):
+        self.update_distance_to_target()
+        distance = self.distance2target.length()
+        if distance < 1:  # close enough → go to next waypoint
+            self.current_path += 1
+
+    def reached_destination(self):
+        if (self.current_path == len(self.path) - 1):
+            return True
+        else:
+            return False
 
     def rotate(self):
         if self.vel.length_squared() > 0:  # only rotate if moving
@@ -95,14 +103,14 @@ class BaseVehicle(pygame.sprite.Sprite):
             for i, image in enumerate(self.sprites):
                 rotated = pygame.transform.rotate(image, self.angle)
                 self.modified_sprites[i] = rotated
-            self.image_pos = self.image.get_rect(center=self.pos)
+            self.image_pos = self.image.get_rect(center=self.current_position)
 
     def front_clear(self, vehicles, safe_distance=40):
         for other in vehicles:
             if other is self:
                 continue
 
-            offset = other.pos - self.pos
+            offset = other.current_position - self.current_position
 
             if offset.length_squared() == 0:  # Same position
                 continue
@@ -117,17 +125,19 @@ class BaseVehicle(pygame.sprite.Sprite):
     def avoid_blocker(self):
         # rotate velocity 20° left or right (could randomize to avoid all picking same side)
         self.vel = rotate_vector(self.vel, 20).normalize() * self.vel.length()
-        self.pos += self.vel
+        self.current_position += self.vel
 
     def update(self, vehicles):
-        if self.can_it_move() and self.front_clear(vehicles) is True:
-            self.pos += self.vel
-        elif not self.can_it_move():
-            self.get_new_dest()
+        if not self.reached_destination() and self.front_clear(vehicles) is True:
+            self.update_edge()
+            self.update_velocity()
+            self.current_position += self.vel
+        elif self.reached_destination():
+            self.update_new_dest()
         if self.front_clear(vehicles) is False:
             self.avoid_blocker()
         self.rotate()
-        self.image_pos.center = self.pos
+        self.image_pos.center = self.current_position
         if not self.isEmergency():
             self.image = self.modified_sprites[0]
 

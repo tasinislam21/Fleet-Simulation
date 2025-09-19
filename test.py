@@ -27,7 +27,7 @@ def check_front_vehicle(self, vehicles, safe_distance=40):
         if other is self:
             continue
 
-        offset = other.pos - self.pos
+        offset = other.current_position - self.current_position
         # Is the other car roughly in front of me?
         if self.vel.length_squared() > 0:
             forward = self.vel.normalize()
