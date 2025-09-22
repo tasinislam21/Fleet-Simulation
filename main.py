@@ -5,12 +5,13 @@ from Vehicle import vehicle_factory
 import argparse
 import config as c
 import random
+import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--number_of_emergency_police', type=int, default=2)
-parser.add_argument('--number_of_normal_police', type=int, default=10)
-parser.add_argument('--number_civilian_car', type=int, default=6)
-parser.add_argument('--number_civilian_bike', type=int, default=3)
+parser.add_argument('--number_of_emergency_police', type=int, default=1)
+parser.add_argument('--number_of_normal_police', type=int, default=5)
+parser.add_argument('--number_civilian_car', type=int, default=1)
+parser.add_argument('--number_civilian_bike', type=int, default=1)
 args = parser.parse_args()
 
 pygame.init()
@@ -61,6 +62,8 @@ if __name__ == "__main__":
         vehicles.add(vehicle_factory('Bike'))
 
     running = True
+    incident_countdown = time.time()
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,28 +76,20 @@ if __name__ == "__main__":
             if vehicle.is_emergency():
                 vehicle.flash_light()
 
-        if len(normal_police_vehicles) > 0:
+        if (time.time() - incident_countdown > 10) and len(normal_police_vehicles) > 0:
+            incident_countdown = time.time()
             normal_police_vehicle = normal_police_vehicles.pop(random.randrange(len(normal_police_vehicles)))
-            if ((normal_police_vehicle.get_activity_time() > random.randrange(20, 40)) and
-                    not normal_police_vehicle.is_emergency()):
-                normal_police_vehicle.set_emergency(True)
-                emergency_police_vehicles.append(normal_police_vehicle)
-                normal_police_vehicle.render(screen)
-                normal_police_vehicle.update(vehicles)
-            else:
-                normal_police_vehicles.append(normal_police_vehicle)
+            normal_police_vehicle.set_emergency(True)
+            emergency_police_vehicles.append(normal_police_vehicle)
 
-        if len(emergency_police_vehicles) > 0:
-            emergency_police_vehicle = emergency_police_vehicles.pop(random.randrange(len(emergency_police_vehicles)))
-            if ((emergency_police_vehicle.get_activity_time() > random.randrange(5, 15)) and
-                    emergency_police_vehicle.is_emergency()):
-                emergency_police_vehicle.set_emergency(False)
-                normal_police_vehicles.append(emergency_police_vehicle)
-                emergency_police_vehicle.render(screen)
-                emergency_police_vehicle.update(vehicles)
-            else:
-                emergency_police_vehicles.append(emergency_police_vehicle)
-
+        emergency2normal = []
+        for i, emergency_police_vehicle in enumerate(emergency_police_vehicles): # check if reached destination
+            if emergency_police_vehicle.reached_destination():
+                emergency2normal.append(i)
+        for i in emergency2normal:
+            emergency_police_vehicle = emergency_police_vehicles.pop(i)
+            emergency_police_vehicle.set_emergency(False)
+            normal_police_vehicles.append(emergency_police_vehicle)
         clock.tick(60)
 
 pygame.quit()
