@@ -146,14 +146,14 @@ class BaseVehicle(pygame.sprite.Sprite):
         self.current_position += self.vel
 
     def update(self, vehicles):
-        if not self.reached_destination() and self.front_clear(vehicles) is True:
+        if not self.reached_destination(): #and self.front_clear(vehicles) is True:
             self.update_edge()
             self.update_velocity()
             self.current_position += self.vel
         elif self.reached_destination():
             self.update_new_dest()
-        if self.front_clear(vehicles) is False:
-            self.avoid_blocker()
+        #if self.front_clear(vehicles) is False:
+        #    self.avoid_blocker()
         self.rotate()
         self.image_pos.center = self.current_position
         if not self.is_emergency():
@@ -168,13 +168,13 @@ class BaseVehicle(pygame.sprite.Sprite):
     def get_pos(self):
         return self.image_pos
 
-    def get_activity_time(self):
+    def get_response_time(self):
         return 0
 
 class Police(BaseVehicle):
     def __init__(self):
         self.emergency = False
-        self.activity_time = time.time()
+        self.activity_time = 0
         super().__init__(police_normal_sprites)
 
     def is_emergency(self):
@@ -188,10 +188,10 @@ class Police(BaseVehicle):
 
     def set_emergency(self, state: bool):
         self.emergency = state
+        self.activity_time = time.time()
         self.reload_sprites()
 
     def reload_sprites(self):
-        self.activity_time = time.time()
         if self.emergency:
             sprites = police_emergency_sprites
         else:
@@ -202,7 +202,7 @@ class Police(BaseVehicle):
         self.image = self.modified_sprites[self.current_sprite]
         self.image_pos = self.image.get_rect()
 
-    def get_activity_time(self):
+    def get_response_time(self):
         return time.time() - self.activity_time
 
 class Car(BaseVehicle):

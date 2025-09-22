@@ -8,10 +8,10 @@ import random
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--number_of_emergency_police', type=int, default=1)
-parser.add_argument('--number_of_normal_police', type=int, default=5)
-parser.add_argument('--number_civilian_car', type=int, default=1)
-parser.add_argument('--number_civilian_bike', type=int, default=1)
+parser.add_argument('--number_of_emergency_police', type=int, default=2)
+parser.add_argument('--number_of_normal_police', type=int, default=8)
+parser.add_argument('--number_civilian_car', type=int, default=10)
+parser.add_argument('--number_civilian_bike', type=int, default=5)
 args = parser.parse_args()
 
 pygame.init()
@@ -36,6 +36,35 @@ def draw_road():
     for road in roads:
         pygame.draw.lines(map_surface, (200, 5, 5), False, road, width= 5)
 
+def update_vehicles():
+    for vehicle in vehicles:
+        vehicle.render(screen)
+        vehicle.update(vehicles)
+        if vehicle.is_emergency():
+            vehicle.flash_light()
+
+def create_incident():
+    if (time.time() - incident_countdown > 10) and len(normal_police_vehicles) > 0:
+        normal_police_vehicle = normal_police_vehicles.pop(random.randrange(len(normal_police_vehicles)))
+        normal_police_vehicle.set_emergency(True)
+        emergency_police_vehicles.append(normal_police_vehicle)
+
+def deallocation():
+    emergency2normal = []
+    for i, emergency_police_vehicle in enumerate(emergency_police_vehicles):  # check if reached destination
+        if emergency_police_vehicle.reached_destination():
+            emergency2normal.append(i)
+    for i in emergency2normal:
+        emergency_police_vehicle = emergency_police_vehicles.pop(i)
+        response_times.append(emergency_police_vehicle.get_response_time())
+        del response_times[0]
+        emergency_police_vehicle.set_emergency(False)
+        normal_police_vehicles.append(emergency_police_vehicle)
+
+def show_avg_response_time():
+    avg = sum(response_times) / len(response_times)
+    print("Average response time is {}".format(avg), end='\r', flush=True)
+
 if __name__ == "__main__":
     draw_buildings()
     draw_road()
@@ -46,6 +75,7 @@ if __name__ == "__main__":
     vehicles = pygame.sprite.Group()
     emergency_police_vehicles = []
     normal_police_vehicles = []
+    incident_countdown = time.time()
 
     for _ in range(args.number_of_emergency_police):
         temp = vehicle_factory('Police')
@@ -62,34 +92,19 @@ if __name__ == "__main__":
         vehicles.add(vehicle_factory('Bike'))
 
     running = True
-    incident_countdown = time.time()
-
+    response_times = [0 for i in range(10)]
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         pygame.display.flip()
         screen.blit(map_surface, (0, 0))
-        for vehicle in vehicles:
-            vehicle.render(screen)
-            vehicle.update(vehicles)
-            if vehicle.is_emergency():
-                vehicle.flash_light()
-
+        update_vehicles()
         if (time.time() - incident_countdown > 10) and len(normal_police_vehicles) > 0:
+            create_incident()
             incident_countdown = time.time()
-            normal_police_vehicle = normal_police_vehicles.pop(random.randrange(len(normal_police_vehicles)))
-            normal_police_vehicle.set_emergency(True)
-            emergency_police_vehicles.append(normal_police_vehicle)
-
-        emergency2normal = []
-        for i, emergency_police_vehicle in enumerate(emergency_police_vehicles): # check if reached destination
-            if emergency_police_vehicle.reached_destination():
-                emergency2normal.append(i)
-        for i in emergency2normal:
-            emergency_police_vehicle = emergency_police_vehicles.pop(i)
-            emergency_police_vehicle.set_emergency(False)
-            normal_police_vehicles.append(emergency_police_vehicle)
+        deallocation()
+        show_avg_response_time()
         clock.tick(60)
 
 pygame.quit()
