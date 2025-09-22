@@ -44,7 +44,7 @@ def update_vehicles():
             vehicle.flash_light()
 
 def create_incident():
-    if (time.time() - incident_countdown > 10) and len(normal_police_vehicles) > 0:
+    if (time.time() - incident_countdown > 5) and len(normal_police_vehicles) > 0:
         normal_police_vehicle = normal_police_vehicles.pop(random.randrange(len(normal_police_vehicles)))
         normal_police_vehicle.set_emergency(True)
         emergency_police_vehicles.append(normal_police_vehicle)

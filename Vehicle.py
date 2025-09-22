@@ -123,37 +123,38 @@ class BaseVehicle(pygame.sprite.Sprite):
                 self.modified_sprites[i] = rotated
             self.image_pos = self.image.get_rect(center=self.current_position)
 
-    def front_clear(self, vehicles, safe_distance=40):
+    def front_clear(self, vehicles, safe_distance=40, min_ignore_distance=5):
         for other in vehicles:
             if other is self:
                 continue
 
             offset = other.current_position - self.current_position
+            offset_length = offset.length()
 
-            if offset.length_squared() == 0:  # Same position
-                continue
+            if offset_length < min_ignore_distance:
+                return True  # Too close — consider overlapping
 
             if self.vel.length_squared() > 0:
                 forward = self.vel.normalize()
-                if forward.dot(offset.normalize()) > 0.7:  # ~within 45° cone ahead
-                    if offset.length() < safe_distance:
+                if forward.dot(offset.normalize()) > 0.7:  # Within ~45° cone in front
+                    if offset_length < safe_distance:
                         return False
+
         return True
 
-    def avoid_blocker(self):
-        # rotate velocity 20° left or right (could randomize to avoid all picking same side)
-        self.vel = rotate_vector(self.vel, 20).normalize() * self.vel.length()
-        self.current_position += self.vel
+    def slow_down(self):
+        self.current_position += self.vel * 0.4
 
     def update(self, vehicles):
-        if not self.reached_destination(): #and self.front_clear(vehicles) is True:
+        if not self.reached_destination():
             self.update_edge()
             self.update_velocity()
-            self.current_position += self.vel
+            if self.front_clear(vehicles):
+                self.current_position += self.vel
+            else:
+                self.slow_down()
         elif self.reached_destination():
             self.update_new_dest()
-        #if self.front_clear(vehicles) is False:
-        #    self.avoid_blocker()
         self.rotate()
         self.image_pos.center = self.current_position
         if not self.is_emergency():
@@ -204,6 +205,12 @@ class Police(BaseVehicle):
 
     def get_response_time(self):
         return time.time() - self.activity_time
+
+    def slow_down(self):
+        if self.emergency:
+            self.current_position += self.vel * 0.8
+        else:
+            self.current_position += self.vel * 0.4
 
 class Car(BaseVehicle):
     def __init__(self):
