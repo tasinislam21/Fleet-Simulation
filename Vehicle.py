@@ -49,7 +49,7 @@ class BaseVehicle(pygame.sprite.Sprite):
     def flash_light(self):
         pass
 
-    def set_emergency(self, state: bool):
+    def set_emergency(self, state: bool, incident_time):
         pass
 
     def reload_sprites(self):
@@ -175,7 +175,8 @@ class BaseVehicle(pygame.sprite.Sprite):
 class Police(BaseVehicle):
     def __init__(self):
         self.emergency = False
-        self.activity_time = 0
+        self.arrival_time = 0
+        self.response_time = 0
         super().__init__(police_normal_sprites)
 
     def is_emergency(self):
@@ -187,9 +188,10 @@ class Police(BaseVehicle):
             self.current_sprite = 0
         self.image = self.modified_sprites[int(self.current_sprite)]
 
-    def set_emergency(self, state: bool):
+    def set_emergency(self, state: bool, incident_time = 0):
         self.emergency = state
-        self.activity_time = time.time()
+        self.response_time = incident_time
+        self.arrival_time = time.time()
         self.reload_sprites()
 
     def reload_sprites(self):
@@ -204,7 +206,10 @@ class Police(BaseVehicle):
         self.image_pos = self.image.get_rect()
 
     def get_response_time(self):
-        return time.time() - self.activity_time
+        return time.time() - self.response_time
+
+    def get_arrival_time(self):
+        return time.time() - self.arrival_time
 
     def slow_down(self):
         if self.emergency:

@@ -8,8 +8,8 @@ import random
 import time
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--number_of_emergency_police', type=int, default=2)
-parser.add_argument('--number_of_normal_police', type=int, default=8)
+parser.add_argument('--number_of_emergency_police', type=int, default=0)
+parser.add_argument('--number_of_normal_police', type=int, default=5)
 parser.add_argument('--number_civilian_car', type=int, default=10)
 parser.add_argument('--number_civilian_bike', type=int, default=5)
 args = parser.parse_args()
@@ -43,10 +43,20 @@ def update_vehicles():
         if vehicle.is_emergency():
             vehicle.flash_light()
 
+def is_incident_due(incident_countdown):
+    if (time.time() - incident_countdown > 2):
+        return True
+    else:
+        return False
+
 def create_incident():
-    if (time.time() - incident_countdown > 5) and len(normal_police_vehicles) > 0:
+    incident_list.append(time.time())
+
+def assign_incident_to_vehicle():
+    if len(incident_list) > 0 and len(normal_police_vehicles) > 0:
         normal_police_vehicle = normal_police_vehicles.pop(random.randrange(len(normal_police_vehicles)))
-        normal_police_vehicle.set_emergency(True)
+        incident = incident_list.pop(0)
+        normal_police_vehicle.set_emergency(True, incident)
         emergency_police_vehicles.append(normal_police_vehicle)
 
 def deallocation():
@@ -57,13 +67,24 @@ def deallocation():
     for i in emergency2normal:
         emergency_police_vehicle = emergency_police_vehicles.pop(i)
         response_times.append(emergency_police_vehicle.get_response_time())
+        arrival_times.append(emergency_police_vehicle.get_arrival_time())
         del response_times[0]
+        del arrival_times[0]
         emergency_police_vehicle.set_emergency(False)
         normal_police_vehicles.append(emergency_police_vehicle)
 
 def show_avg_response_time():
-    avg = sum(response_times) / len(response_times)
-    print("Average response time is {}".format(avg), end='\r', flush=True)
+    avg_response_time = sum(response_times) / len(response_times) if response_times else 0
+    avg_arrival_time = sum(arrival_times) / len(arrival_times) if arrival_times else 0
+    incident_count = len(incident_list)
+
+    output = (
+        "Average response time: {:.2f} | "
+        "Average arrival time: {:.2f} | "
+        "Incident Queue: {}".format(avg_response_time, avg_arrival_time, incident_count)
+    )
+
+    print(output, end='\r', flush=True)
 
 if __name__ == "__main__":
     draw_buildings()
@@ -75,11 +96,12 @@ if __name__ == "__main__":
     vehicles = pygame.sprite.Group()
     emergency_police_vehicles = []
     normal_police_vehicles = []
+    incident_list = []
     incident_countdown = time.time()
 
     for _ in range(args.number_of_emergency_police):
         temp = vehicle_factory('Police')
-        temp.set_emergency(True)
+        temp.set_emergency(True, time.time())
         vehicles.add(temp)
         emergency_police_vehicles.append(temp)
     for _ in range(args.number_of_normal_police):
@@ -93,6 +115,8 @@ if __name__ == "__main__":
 
     running = True
     response_times = [0 for i in range(10)]
+    arrival_times = [0 for i in range(10)]
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,9 +124,10 @@ if __name__ == "__main__":
         pygame.display.flip()
         screen.blit(map_surface, (0, 0))
         update_vehicles()
-        if (time.time() - incident_countdown > 10) and len(normal_police_vehicles) > 0:
+        if is_incident_due(incident_countdown):
             create_incident()
             incident_countdown = time.time()
+        assign_incident_to_vehicle()
         deallocation()
         show_avg_response_time()
         clock.tick(60)
