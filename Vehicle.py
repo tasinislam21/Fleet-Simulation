@@ -148,7 +148,7 @@ class BaseVehicle(pygame.sprite.Sprite):
     def update(self, vehicles):
         if not self.reached_destination():
             self.update_edge()
-            self.update_velocity()
+            #self.update_velocity()
             if self.front_clear(vehicles):
                 self.current_position += self.vel
             else:
