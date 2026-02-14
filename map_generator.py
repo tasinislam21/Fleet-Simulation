@@ -1,6 +1,7 @@
 import osmnx as ox
 from shapely.geometry import box
 import config as c
+import geopandas as gpd
 
 class MapGenerator:
     def __init__(self, place_name, clip_polygon):
@@ -8,6 +9,8 @@ class MapGenerator:
         self.SCREEN_WIDTH = c.SCREEN_WIDTH
         self.SCREEN_HEIGHT = c.SCREEN_HEIGHT
         self.area_df = ox.geocode_to_gdf(place_name)
+        self.area_df = gpd.read_file(f"offline_maps/{place_name}.geojson")
+
         self.area_df = self.area_df.clip(clip_polygon)
         self.geometry = self.area_df.geometry.iloc[0]
         self.graph = ox.graph_from_polygon(self.geometry, network_type="drive")
@@ -78,19 +81,19 @@ class MapGenerator:
 
 class Hackney(MapGenerator):
     def __init__(self):
-        place_name = "Hackney, UK" # temp
+        place_name = "Hackney" # temp
         clip_polygon = box(-0.08, 51.545, -0.06, 51.535)
         super().__init__(place_name, clip_polygon)
 
 class Redbridge(MapGenerator):
     def __init__(self):
-        place_name = "Hackney, UK" # temp
+        place_name = "Hackney" # temp
         clip_polygon = box(-0.08, 51.545, -0.06, 51.535)
         super().__init__(place_name, clip_polygon)
 
 class Newham(MapGenerator):
     def __init__(self):
-        place_name = "Hackney, UK"  # temp
+        place_name = "Hackney"  # temp
         clip_polygon = box(-0.08, 51.545, -0.06, 51.535)
         super().__init__(place_name, clip_polygon)
 
