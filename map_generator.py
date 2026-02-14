@@ -1,19 +1,20 @@
-import osmnx as ox
 from shapely.geometry import box
 import config as c
 import geopandas as gpd
+from pyrosm import OSM
 
 class MapGenerator:
     def __init__(self, place_name, clip_polygon):
         self.place_name = place_name
         self.SCREEN_WIDTH = c.SCREEN_WIDTH
         self.SCREEN_HEIGHT = c.SCREEN_HEIGHT
-        self.area_df = ox.geocode_to_gdf(place_name)
         self.area_df = gpd.read_file(f"offline_maps/{place_name}.geojson")
 
-        self.area_df = self.area_df.clip(clip_polygon)
+        #self.area_df = self.area_df.clip(clip_polygon)
         self.geometry = self.area_df.geometry.iloc[0]
-        self.graph = ox.graph_from_polygon(self.geometry, network_type="drive")
+        self.osm = OSM('london.pbf', bounding_box=self.geometry)
+        nodes, edges = self.osm.get_network(nodes=True, network_type='driving')
+        self.graph = self.osm.to_graph(nodes, edges, graph_type='networkx', retain_all=True)
 
         self.minx, self.miny, self.maxx, self.maxy = self.area_df.total_bounds
         geo_width = self.maxx - self.minx
@@ -33,8 +34,7 @@ class MapGenerator:
         return self.scale_x, self.scale_y
 
     def get_buildings_polygon(self):
-        building_tags = {"building": True}
-        buildings = ox.features_from_polygon(self.geometry, building_tags)
+        buildings = self.osm.get_buildings()
         buildings = buildings[buildings.geom_type == 'Polygon']
         buildings_coord = []
         for _, building in buildings.iterrows():
@@ -46,8 +46,7 @@ class MapGenerator:
         return buildings_coord
 
     def get_road_line(self):
-        road_tags = {"highway": True}
-        roads = ox.features_from_polygon(self.geometry, road_tags)
+        roads = self.osm.get_network(network_type='driving')
         roads =  roads[roads.geom_type == 'LineString']
         roads_coord = []
         for _, road in roads.iterrows():
@@ -60,8 +59,7 @@ class MapGenerator:
 
     def get_road_coord(self):
         full_road_coord = []
-        road_tags = {"highway": True}
-        roads = ox.features_from_polygon(self.geometry, road_tags)
+        roads = self.osm.get_network(network_type='driving')
         roads = roads[roads.geom_type == 'LineString']
         for _, road in roads.iterrows():
             xx, yy = road['geometry'].coords.xy
