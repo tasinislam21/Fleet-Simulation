@@ -1,5 +1,5 @@
 <p align="center">
- <img height=350px src="./simulation-output.png" alt="Simulation output">
+ <img height=350px src="./simulation-output.gif" alt="Simulation output">
 </p>
 
 <h1 align="center">Agent-based Police Fleet Simulation</h1>
@@ -28,11 +28,7 @@
 <li>Enables fleet controllers to experiment and identify the optimal number of vehicles needed for each borough in London</li>
 </ul>
 
-### Demo
 
-Coming soon
-
----
 ### Prerequisites
 
 [Python 3.1+](https://www.python.org/downloads/)
