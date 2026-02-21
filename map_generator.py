@@ -1,4 +1,4 @@
-from shapely.geometry import box
+from shapely.geometry import box, LineString
 import config as c
 import geopandas as gpd
 from pyrosm import OSM
@@ -9,8 +9,7 @@ class MapGenerator:
         self.SCREEN_WIDTH = c.SCREEN_WIDTH
         self.SCREEN_HEIGHT = c.SCREEN_HEIGHT
         self.area_df = gpd.read_file(f"offline_maps/{place_name}.geojson")
-
-        #self.area_df = self.area_df.clip(clip_polygon)
+        self.area_df = self.area_df.clip(clip_polygon)
         self.geometry = self.area_df.geometry.iloc[0]
         self.osm = OSM('london.pbf', bounding_box=self.geometry)
         nodes, edges = self.osm.get_network(nodes=True, network_type='driving')
@@ -47,7 +46,7 @@ class MapGenerator:
 
     def get_road_line(self):
         roads = self.osm.get_network(network_type='driving')
-        roads =  roads[roads.geom_type == 'LineString']
+        roads.geometry = roads.geometry.apply(lambda geom: LineString(gpd.GeoSeries(geom).get_coordinates()))
         roads_coord = []
         for _, road in roads.iterrows():
             xx, yy = road['geometry'].coords.xy
@@ -56,16 +55,6 @@ class MapGenerator:
                 road_coord.append(self._normalize_coords(xx[polygon_index], yy[polygon_index]))
             roads_coord.append(road_coord)
         return roads_coord
-
-    def get_road_coord(self):
-        full_road_coord = []
-        roads = self.osm.get_network(network_type='driving')
-        roads = roads[roads.geom_type == 'LineString']
-        for _, road in roads.iterrows():
-            xx, yy = road['geometry'].coords.xy
-            for polygon_index in range(len(xx)):
-                full_road_coord.append(self._normalize_coords(xx[polygon_index], yy[polygon_index]))
-        return full_road_coord
 
     def get_graph(self):
         return self.graph

@@ -34,7 +34,7 @@ def draw_buildings():
 def draw_road():
     roads = map.get_road_line()
     for road in roads:
-        pygame.draw.lines(map_surface, (200, 5, 5), False, road, width= 10)
+        pygame.draw.lines(map_surface, (200, 5, 5), False, road, width= 5)
 
 def update_vehicles():
     for vehicle in vehicles:
