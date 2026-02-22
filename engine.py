@@ -153,7 +153,7 @@ class Engine:
         self.deallocation()
         self.show_avg_response_time()
 
-    def get_engine_ready(self):
+    def ready(self):
         return self.engine_ready
 
     def draw_loading_screen(self):

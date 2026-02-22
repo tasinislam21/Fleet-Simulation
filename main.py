@@ -23,12 +23,11 @@ map_surface.fill((0, 0, 0))
 if __name__ == "__main__":
     engine = Engine(args, map_surface, screen)
     running = True
-
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        if engine.get_engine_ready():
+        if engine.ready():
             engine.update()
         else:
             engine.draw_loading_screen()
