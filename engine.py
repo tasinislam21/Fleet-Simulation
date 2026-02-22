@@ -90,7 +90,7 @@ class Engine:
     def draw_road(self):
         roads = self.map.get_road_line()
         for road in roads:
-            pygame.draw.lines(self.map_surface, (200, 5, 5), False, road, width=5)
+            pygame.draw.lines(self.map_surface, (200, 5, 5), False, road, width=2)
 
     def update_vehicles(self):
         for vehicle in self.vehicles:
