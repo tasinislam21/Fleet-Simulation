@@ -72,8 +72,6 @@ class Engine:
 
         # DONE
         self.loading_screen.set_progress(100, "Done!")
-        time.sleep(0.5)
-
         self.loading_screen.mark_done()
 
         self.populate_vehicles(self.args)
@@ -146,7 +144,6 @@ class Engine:
 
 
     def update(self):
-        pygame.display.flip()
         self.screen.blit(self.map_surface, (0, 0))
         self.update_vehicles()
         if self.is_incident_due(self.incident_countdown):
@@ -158,3 +155,6 @@ class Engine:
 
     def get_engine_ready(self):
         return self.engine_ready
+
+    def draw_loading_screen(self):
+        self.loading_screen.draw(self.screen)

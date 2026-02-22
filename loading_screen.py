@@ -1,6 +1,6 @@
 import threading
 import pygame
-import config
+import config as c
 
 class LoadingScreen:
     def __init__(self):
@@ -24,13 +24,13 @@ class LoadingScreen:
 
         font = pygame.font.SysFont(None, 36)
         text = font.render(self.message, True, (255, 255, 255))
-        surface.blit(text, (config.SCREEN_WIDTH  // 2 - text.get_width() // 2, config.SCREEN_HEIGHT // 2 - 80))
+        surface.blit(text, (c.SCREEN_WIDTH  // 2 - text.get_width() // 2, c.SCREEN_HEIGHT // 2 - 80))
 
         # Bar background
         bar_width = 500
         bar_height = 40
-        x = config.SCREEN_WIDTH // 2 - bar_width // 2
-        y = config.SCREEN_HEIGHT // 2
+        x = c.SCREEN_WIDTH // 2 - bar_width // 2
+        y = c.SCREEN_HEIGHT // 2
 
         pygame.draw.rect(surface, (80, 80, 80), (x, y, bar_width, bar_height), border_radius=8)
 
@@ -39,4 +39,4 @@ class LoadingScreen:
         pygame.draw.rect(surface, (0, 200, 100), (x, y, fill_width, bar_height), border_radius=8)
 
         percent_text = font.render(f"{self.progress}%", True, (255, 255, 255))
-        surface.blit(percent_text, (config.SCREEN_WIDTH  // 2 - percent_text.get_width() // 2, y + 50))
+        surface.blit(percent_text, (c.SCREEN_WIDTH  // 2 - percent_text.get_width() // 2, y + 50))

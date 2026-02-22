@@ -30,6 +30,8 @@ if __name__ == "__main__":
                 running = False
         if engine.get_engine_ready():
             engine.update()
+        else:
+            engine.draw_loading_screen()
         clock.tick(60)
-
+        pygame.display.flip()
 pygame.quit()
