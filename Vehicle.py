@@ -84,15 +84,16 @@ class BaseVehicle(pygame.sprite.Sprite):
 
     def update_velocity(self):
         distance = self.distance2target.length()
-        self.distance2target.normalize_ip()
-        self.speed = drivable_road.get_max_speed(self.node_path[self.current_path -1],
-                                                 self.node_path[self.current_path])
-        step = min(self.speed, distance) - 0.1  # <-- prevents overshoot
-        if distance <= self.target_radius and self.current_path == len(self.path) - 2:
-            self.vel = self.distance2target * (
-                    distance / self.target_radius * step)  # slow down when it reaches close to the destination
-        else:
-            self.vel = self.distance2target * step
+        if distance != 0:
+            self.distance2target.normalize_ip()
+            self.speed = drivable_road.get_max_speed(self.node_path[self.current_path -1],
+                                                     self.node_path[self.current_path])
+            step = min(self.speed, distance) - 0.1  # <-- prevents overshoot
+            if distance <= self.target_radius and self.current_path == len(self.path) - 2:
+                self.vel = self.distance2target * (
+                        distance / self.target_radius * step)  # slow down when it reaches close to the destination
+            else:
+                self.vel = self.distance2target * step
 
     def update_edge(self):
         self.update_distance_to_target()

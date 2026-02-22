@@ -9,7 +9,7 @@ class MapGenerator:
         self.SCREEN_WIDTH = c.SCREEN_WIDTH
         self.SCREEN_HEIGHT = c.SCREEN_HEIGHT
         self.area_df = gpd.read_file(f"offline_maps/{place_name}.geojson")
-        self.area_df = self.area_df.clip(clip_polygon)
+        #self.area_df = self.area_df.clip(clip_polygon)
         self.geometry = self.area_df.geometry.iloc[0]
         self.osm = OSM('london.pbf', bounding_box=self.geometry)
         nodes, edges = self.osm.get_network(nodes=True, network_type='driving')
