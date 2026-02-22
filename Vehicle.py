@@ -204,7 +204,6 @@ class Police(BaseVehicle):
         self.sprites = sprites.copy()
         self.modified_sprites = [s.copy() for s in sprites]
         self.image = self.modified_sprites[self.current_sprite]
-        self.image_pos = self.image.get_rect()
 
     def get_response_time(self):
         return time.time() - self.response_time
